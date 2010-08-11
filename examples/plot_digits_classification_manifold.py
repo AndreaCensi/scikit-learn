@@ -14,6 +14,7 @@ hand-written digits.
 # Standard scientific Python imports
 import pylab as pl
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
 # The digits dataset
 from scikits.learn import datasets
@@ -41,8 +42,6 @@ isomap.fit(data[:n_samples/2])
 
 colors = np.array([(1,0,0), (0,1,0), (0,0,1), (1,1,0), (1,0,1), (0,1,1),
                    (0,0,0), (1,1,1), (.5, 0, 0), (0, .5, 0), (0, 0, .5)])
-
-from mpl_toolkits.mplot3d import Axes3D
 
 fig2 = pl.figure()
 ax2 = Axes3D(fig2)
