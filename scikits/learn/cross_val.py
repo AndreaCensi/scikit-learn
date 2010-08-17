@@ -8,9 +8,12 @@ Utilities for cross validation.
 
 from math import ceil
 import numpy as np
-from scikits.learn.utils.extmath import factorial, combinations
 
-################################################################################
+from .base import ClassifierMixin
+from .utils.extmath import factorial, combinations
+from .externals.joblib import Parallel, delayed
+
+##############################################################################
 class LeaveOneOut(object):
     """
     Leave-One-Out cross validation iterator:
@@ -68,7 +71,7 @@ class LeaveOneOut(object):
         return self.n
 
 
-################################################################################
+##############################################################################
 class LeavePOut(object):
     """
     Leave-P-Out cross validation iterator:
@@ -136,7 +139,7 @@ class LeavePOut(object):
                / factorial(self.p)
 
 
-################################################################################
+##############################################################################
 class KFold(object):
     """
     K-Folds cross validation iterator:
@@ -207,7 +210,8 @@ class KFold(object):
     def __len__(self):
         return self.k
 
-################################################################################
+
+##############################################################################
 class StratifiedKFold(object):
     """
     Stratified K-Folds cross validation iterator:
@@ -219,6 +223,8 @@ class StratifiedKFold(object):
     
     """
 
+    # XXX: Should maybe have an argument to raise when 
+    # folds are not balanced
     def __init__(self, y, k):
         """
         K-Folds cross validation iterator:
@@ -298,7 +304,8 @@ class StratifiedKFold(object):
     def __len__(self):
         return self.k
 
-################################################################################
+
+##############################################################################
 class LeaveOneLabelOut(object):
     """
     Leave-One-Label_Out cross-validation iterator:
@@ -365,7 +372,8 @@ class LeaveOneLabelOut(object):
     def __len__(self):
         return self.n_labels
 
-################################################################################
+
+##############################################################################
 class LeavePLabelOut(object):
     """
     Leave-P-Label_Out cross-validation iterator:
@@ -441,13 +449,76 @@ class LeavePLabelOut(object):
         return factorial(self.n_labels) / factorial(self.n_labels - self.p) \
                / factorial(self.p)
 
+    
+##############################################################################
+
+def _cross_val_score(estimator, X, y, score_func, train, test):
+    """ Inner loop for cross validation.
+    """
+    if score_func is None:
+        score_func = lambda self, *args: estimator.score(*args)
+    if y is None:
+        return score_func(estimator.fit(X[train]), X[test])
+    return score_func(estimator.fit(X[train], y[train]), X[test], y[test])
 
 
+def cross_val_score(estimator, X, y=None, score_func=None, cv=None, 
+                n_jobs=1, verbose=0):
+    """ Evaluate a score by cross-validation.
+
+        Parameters
+        ===========
+        estimator: estimator object implementing 'fit'
+            The object to use to fit the data
+        X: array-like of shape at least 2D
+            The data to fit.
+        y: array-like, optional
+            The target variable to try to predict in the case of
+            supervised learning.
+        score_func: callable, optional
+            callable taking as arguments the fitted estimator, the
+            test data (X_test) and the test target (y_test) if y is
+            not None.
+        cv: cross-validation generator, optional
+            A cross-validation generator. If None, a 3-fold cross
+            validation is used or 3-fold stratified cross-validation
+            when y is supplied.
+        n_jobs: integer, optional
+            The number of CPUs to use to do the computation. -1 means
+            'all CPUs'.
+        verbose: integer, optional
+            The verbosity level
+    """
+    # XXX: should have a n_jobs to be able to do this in parallel.
+    n_samples = len(X)
+    if cv is None:
+        if y is not None and isinstance(estimator, ClassifierMixin):
+            cv = StratifiedKFold(y, k=3)
+        else:
+            cv = KFold(n_samples, k=3)
+    if score_func is None:
+        assert hasattr(estimator, 'score'), ValueError(
+                "If no score_func is specified, the estimator passed "
+                "should have a 'score' method. The estimator %s "
+                "does not." % estimator
+                )
+    scores = Parallel(n_jobs=n_jobs, verbose=verbose)(
+                delayed(_cross_val_score)(estimator, X, y, score_func, 
+                                                        train, test)
+                for train, test in cv)
+    return np.array(scores)
+
+
+################################################################################
+# Depreciated
 def split(train_indices, test_indices, *args):
     """
     For each arg return a train and test subsets defined by indexes provided
     in train_indices and test_indices
     """
+    import warnings
+    warnings.warn('split is deprecated and will be removed, '
+                    'please use indexing instead')
     ret = []
     for arg in args:
         arg = np.asanyarray(arg)

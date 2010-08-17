@@ -19,6 +19,7 @@ def configuration(parent_package='',top_path=None):
     config.add_subpackage('features')
     config.add_subpackage('feature_selection')
     config.add_subpackage('manifold')
+    config.add_subpackage('sparse')
     config.add_subpackage('utils')
 
     # Section LibSVM
@@ -42,7 +43,9 @@ def configuration(parent_package='',top_path=None):
                          libraries=libsvm_libraries,
                          library_dirs=libsvm_library_dirs,
                          depends=[join('src', 'libsvm', 'svm.h'),
-                                  join('src', 'libsvm', 'libsvm_helper.c')]
+                                  join('src', 'libsvm', 'libsvm_helper.c')],
+                         # add this for gdb debug
+                         extra_compile_args=['-O0 -fno-inline']
                                   )
 
     ### liblinear module

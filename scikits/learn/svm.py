@@ -2,7 +2,10 @@ import numpy as np
 import _libsvm
 import _liblinear
 
-from .base_estimator import BaseEstimator
+from .base import BaseEstimator, RegressorMixin, ClassifierMixin
+
+#
+# TODO: some cleanup: is nSV_ really needed ?
 
 class BaseLibsvm(BaseEstimator):
     """
@@ -208,7 +211,6 @@ class BaseLibsvm(BaseEstimator):
                       self.probA_, self.probB_)
 
 
-
     @property
     def coef_(self):
         if self.kernel != 'linear':
@@ -216,16 +218,16 @@ class BaseLibsvm(BaseEstimator):
         return np.dot(self.dual_coef_, self.support_)
 
 
-###
+################################################################################
 # Public API
 # No processing should go into these classes
 
-class SVC(BaseLibsvm):
+class SVC(BaseLibsvm, ClassifierMixin):
     """
     Classification using Support Vector Machines.
 
-    This class implements the most common classification methods
-    (C-SVC, Nu-SVC) using support vector machines.
+    This class implements the most classification methods
+    C-SVC and Nu-SVC using support vector machines.
 
     Parameters
     ----------
@@ -290,6 +292,9 @@ class SVC(BaseLibsvm):
     predict_proba(X) : array
         Return probability estimates.
 
+    predict_margin(X) : array
+        Return distance to predicted margin.
+
     Examples
     --------
     >>> X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
@@ -326,7 +331,7 @@ class SVC(BaseLibsvm):
 
 
 
-class SVR(BaseLibsvm):
+class SVR(BaseLibsvm, RegressorMixin):
     """
     Support Vector Regression.
 
@@ -473,9 +478,15 @@ class OneClassSVM(BaseLibsvm):
         BaseLibsvm.__init__(self, 'one_class', kernel, degree, gamma, coef0,
                          cache_size, eps, C, nu, p,
                          shrinking, probability)
+    
+    def fit(self, X, Y=None):
+        if Y is None:
+            n_samples = X.shape[0]
+            Y = [0] * n_samples
+        super(OneClassSVM, self).fit(X, Y)
 
 
-class LinearSVC(BaseEstimator):
+class LinearSVC(BaseEstimator, ClassifierMixin):
     """
     Linear Support Vector Classification.
 
@@ -538,7 +549,7 @@ class LinearSVC(BaseEstimator):
         'PL2_LL2_D1' : 1, # L2 penalty, L2 loss, dual problem
         'PL2_LL2_D0' : 2, # L2 penalty, L2 loss, primal problem
         'PL2_LL1_D1' : 3, # L2 penalty, L1 Loss, dual problem
-        'PL1_LL2_D0' : 5, # L2 penalty, L1 Loss, primal problem
+        'PL1_LL2_D0' : 5, # L1 penalty, L2 Loss, primal problem
         }
 
     def __init__(self, penalty='l2', loss='l2', dual=True, eps=1e-4, C=1.0):

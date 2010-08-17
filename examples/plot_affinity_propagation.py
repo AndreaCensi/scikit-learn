@@ -1,4 +1,7 @@
-"""Affinity Propagation clustering algorithm
+"""
+
+Demo of affinity propagation clustering algorithm
+====================================================
 
 Reference:
 Brendan J. Frey and Delbert Dueck, "Clustering by Passing Messages
@@ -63,3 +66,5 @@ for k, col in zip(range(n_clusters_), colors):
         pl.plot([cluster_center[0], x[0]], [cluster_center[1], x[1]], col)
 
 pl.title('Estimated number of clusters: %d' % n_clusters_)
+pl.show()
+
