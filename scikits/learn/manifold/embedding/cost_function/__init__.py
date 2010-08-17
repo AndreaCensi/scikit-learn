@@ -1,5 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Robust compression module
 """
-
-#from .costfunction import cost_function

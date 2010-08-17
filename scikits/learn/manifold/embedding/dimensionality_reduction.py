@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Simple optimization
@@ -8,7 +9,7 @@ import numpy.random
 import numpy.linalg
 import math
 
-from scikits.optimization import *
+from scikits.learn.externals.optimization import line_search, step, optimizer, criterion
 
 class Modifier(object):
     """

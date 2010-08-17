@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Multireosolution optimization with a specific cost function
@@ -7,7 +8,7 @@ import numpy
 import numpy.random
 import math
 
-from scikits.optimization import *
+from scikits.learn.externals.optimization import *
 
 class Modifier(object):
     """

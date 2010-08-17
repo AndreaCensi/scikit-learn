@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Robust optimization with a specific cost function
@@ -7,7 +8,7 @@ import numpy
 import numpy.linalg
 import math
 
-from scikits.optimization import *
+from scikits.learn.externals.optimization import line_search, step, optimizer, criterion
 
 class Recorder(object):
     def __init__(self):

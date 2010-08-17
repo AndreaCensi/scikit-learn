@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os.path import join
 import warnings
 import numpy
@@ -16,6 +17,7 @@ def configuration(parent_package='',top_path=None):
     site_cfg.read(get_standard_file('site.cfg'))
 
     config.add_subpackage('datasets')
+    config.add_subpackage('externals')
     config.add_subpackage('features')
     config.add_subpackage('feature_selection')
     config.add_subpackage('manifold')

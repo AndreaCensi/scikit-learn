@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 
 import numpy
 import itertools
 
 from .tools import dist2hd
-from scikits.optimization.helpers import ForwardFiniteDifferences
+from scikits.learn.externals.optimization.helpers import ForwardFiniteDifferences
 
 class CostFunction(ForwardFiniteDifferences):
     """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Quadratic optimization
@@ -7,7 +8,7 @@ import numpy
 import numpy.random
 import numpy.linalg
 
-from scikits.optimizer import StandardOptimizerModifying
+from scikits.learn.externals.optimization.optimizer import StandardOptimizerModifying
 
 class Modifier(object):
     """
