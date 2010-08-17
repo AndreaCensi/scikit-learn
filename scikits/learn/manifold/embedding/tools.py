@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Tools for computation
@@ -42,7 +43,7 @@ def create_neighborer(samples, neigh = None, n_neighbors = None,
         neigh.fit(samples)
     return neigh
 
-def create_graph(samples, neigh, n_neighbors, neigh_alternate_arguments):
+def create_graph(samples, neigh = None, n_neighbors = None, neigh_alternate_arguments = None):
     """
     Creates a list of list containing the nearest neighboors for each point in
     the dataset
@@ -66,10 +67,20 @@ def create_graph(samples, neigh, n_neighbors, neigh_alternate_arguments):
     The following example creates a graph from samples and outputs the
     first item, that is a tuple representing the distance from that
     element to all other elements in sample:
-    
-    >>> from scikits.learn.manifold.compression.tools import create_graph
-    >>> graph = create_graph(data)
+
+    >>> import numpy
+    >>> from scikits.learn.manifold.embedding.tools import create_graph
+    >>> samples = numpy.array((0., 0., 0., \
+      1., 0., 0., \
+      0., 1., 0., \
+      1., 1., 0., \
+      0., .5, 0., \
+      .5, 0., 0., \
+      1., 1., 0.5, \
+      )).reshape((-1,3))
+    >>> graph = create_graph(samples, n_neighbors = 3)
     >>> print graph[0]
+    [array([ 0. ,  0.5,  0.5]), array([0, 5, 4])]
     """
     n = len(samples)
     labels, graph = np.zeros(n), [None]*n

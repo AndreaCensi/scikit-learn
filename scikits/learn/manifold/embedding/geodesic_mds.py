@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Dimensionality reduction with geodesic distances
@@ -141,17 +142,16 @@ class Isomap(BaseEstimator):
     --------  
     >>> from scikits.learn.manifold import Isomap
     >>> import numpy
-    >>> samples = numpy.array((0., 0., 0.,
-      1., 0., 0.,
-      0., 1., 0.,
-      1., 1., 0.,
-      0., .5, 0.,
-      .5, 0., 0.,
-      1., 1., 0.5,
+    >>> samples = numpy.array((0., 0., 0., \
+      1., 0., 0., \
+      0., 1., 0., \
+      1., 1., 0., \
+      0., .5, 0., \
+      .5, 0., 0., \
+      1., 1., 0.5, \
       )).reshape((-1,3))
-    >>> isomap = Isomap(kind = None)
-    >>> isomap.fit(samples)
-    >>> print isomap.embedding_
+    >>> isomap = Isomap(n_coords = 2, mapping_kind = None, n_neighbors = 3)
+    >>> isomap = isomap.fit(samples)
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
         neigh_alternate_arguments = None, mapping_kind = "Barycenter", temp_file=None):
