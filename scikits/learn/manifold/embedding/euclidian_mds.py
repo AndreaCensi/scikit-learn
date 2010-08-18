@@ -64,9 +64,6 @@ class NLM(BaseEstimator):
           * an instance : an instance that will be fit() and then
               transform()ed
 
-    temp_file : string
-      name of a file for caching the distance matrix
-
     Attributes
     ----------
     embedding_ : array_like
@@ -103,13 +100,12 @@ class NLM(BaseEstimator):
     >>> nlm = nlm.fit(samples)
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
-        neigh_alternate_arguments = None, mapping_kind = "Barycenter", temp_file=None):
+        neigh_alternate_arguments = None, mapping_kind = "Barycenter"):
         self.n_coords = n_coords
         self.n_neighbors = n_neighbors if n_neighbors is not None else 9
         self.neigh = neigh
         self.neigh_alternate_arguments = neigh_alternate_arguments
         self.mapping_kind = mapping_kind
-        self.temp_file= temp_file
 
     def fit(self, X):
         """

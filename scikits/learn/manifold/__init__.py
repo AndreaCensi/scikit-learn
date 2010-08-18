@@ -4,6 +4,7 @@
 Manifold Learning Module
 """
 
+from .embedding.pca import PCA
 from .embedding.geodesic_mds import Isomap, GeodesicNLM
 from .embedding.euclidian_mds import NLM
 
