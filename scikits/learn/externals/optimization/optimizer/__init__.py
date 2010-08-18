@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Module containing the core optimizers
@@ -13,10 +14,8 @@ Optimizers :
     - modifies the resulting parameters
 """
 
-from polytope_optimizer import *
-from standard_optimizer import *
-from standard_optimizer_modifying import *
+from .standard_optimizer_modifying import StandardOptimizerModifying
 
-optimizer__all__ = ['PolytopeOptimizer', 'StandardOptimizer', 'StandardOptimizerModifying', ]
+optimizer__all__ = ['StandardOptimizerModifying', ]
 
 __all__ = optimizer__all__
