@@ -12,7 +12,7 @@ from scikits.learn.externals.optimization import line_search, step, optimizer, c
 
 from.dimensionality_reduction import Modifier
 
-def optimize_cost_function(distances, function, nb_coords = 2, max_dist = 5, **kwargs):
+def optimize_cost_function(distances, function, nb_coords, max_dist, **kwargs):
     """
     Computes a new coordinates system that respects the distances between each point. Each iteration adds a new point in the process
     Parameters :

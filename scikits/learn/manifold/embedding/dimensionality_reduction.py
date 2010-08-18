@@ -15,9 +15,8 @@ class Modifier(object):
     """
     Recenters the points on each axis
     """
-    def __init__(self, nb_coords, function):
+    def __init__(self, nb_coords):
         self.nb_coords = nb_coords
-        self.function = function
 
     def __call__(self, parameters):
         points = parameters.reshape((-1, self.nb_coords))
@@ -43,7 +42,7 @@ def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
       step = step.FRPRPConjugateGradientStep(),
       criterion = criterion.criterion(gtol = 0.000001, ftol = 0.000001, iterations_max = 10000),
       x0 = x0,
-      line_search = line_search.StrongWolfePowellRule(), post_modifier = Modifier(nb_coords, function))
+      line_search = line_search.StrongWolfePowellRule(), post_modifier = Modifier(nb_coords))
 
     optimal = optimi.optimize()
     optimal = optimal.reshape(-1, nb_coords)

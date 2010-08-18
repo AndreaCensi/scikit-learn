@@ -14,7 +14,7 @@ from nose.tools import raises
 
 from ..tools import create_neighborer, dist2hd
 from ..geodesic_mds import reduct, populate_distance_matrix_from_neighbors, \
-    Isomap, GeodesicNLM
+    Isomap, CCA, GeodesicNLM
 
 samples = numpy.array((0., 0., 0.,
   1., 0., 0.,
@@ -83,6 +83,30 @@ class TestIsomap(TestCase):
         isomap.fit(samples[:3])
         mapped = isomap.transform(samples)
         assert_array_almost_equal(mapped[:3], isomap.embedding_, decimal=3)
+
+class TestCCA(TestCase):
+    def test_fit(self):
+        numpy.random.seed(0)
+        cca = CCA(n_coords = 2, mapping_kind = None, n_neighbors = 3)
+        assert(cca.fit(samples[:3]) == cca)
+        assert(hasattr(cca, 'embedding_'))
+        assert(cca.embedding_.shape == (3, 2))
+        assert_array_almost_equal(dist2hd(cca.embedding_[:3],
+            cca.embedding_[:3])**2, distances[:3, :3], decimal = 3)
+
+    @raises(RuntimeError)
+    def test_transform_raises(self):
+        numpy.random.seed(0)
+        cca = CCA(n_coords = 2, mapping_kind = None, n_neighbors = 3)
+        cca.fit(samples[:3])
+        cca.transform(samples[0])
+
+    def test_transform(self):
+        numpy.random.seed(0)
+        cca = CCA(n_coords = 2, n_neighbors = 3)
+        cca.fit(samples[:3])
+        mapped = cca.transform(samples)
+        assert_array_almost_equal(mapped[:3], cca.embedding_, decimal=3)
 
 class TestGeodesicNLM(TestCase):
     def test_fit(self):
