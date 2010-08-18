@@ -25,6 +25,19 @@ y = iris.target
 target_names = iris.target_names
 
 ################################################################################
+# PCA
+from scikits.learn.manifold import PCA
+pca = PCA(n_coords=3)
+X_r = pca.fit(X).embedding_
+
+fig = pl.figure()
+ax = Axes3D(fig)#fig.gca(projection='3d')
+for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
+    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
+ax.legend()
+ax.set_title('ISOMAP embedding of IRIS dataset')
+
+################################################################################
 # Isomap
 from scikits.learn.manifold import Isomap
 isomap = Isomap(n_coords=3, n_neighbors=30)
