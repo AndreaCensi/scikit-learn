@@ -6,6 +6,7 @@ import numpy
 from numpy.testing import assert_array_equal, \
                           assert_array_almost_equal, \
                           assert_raises
+import numpy.random
 
 from unittest import TestCase
 from tempfile import NamedTemporaryFile
@@ -85,6 +86,7 @@ class TestIsomap(TestCase):
 
 class TestGeodesicNLM(TestCase):
     def test_fit(self):
+        numpy.random.seed(0)
         nlm = GeodesicNLM(n_coords = 2, mapping_kind = None, n_neighbors = 3)
         assert(nlm.fit(samples[:3]) == nlm)
         assert(hasattr(nlm, 'embedding_'))
@@ -94,11 +96,13 @@ class TestGeodesicNLM(TestCase):
 
     @raises(RuntimeError)
     def test_transform_raises(self):
+        numpy.random.seed(0)
         nlm = GeodesicNLM(n_coords = 2, mapping_kind = None, n_neighbors = 3)
         nlm.fit(samples[:3])
         nlm.transform(samples[0])
 
     def test_transform(self):
+        numpy.random.seed(0)
         nlm = GeodesicNLM(n_coords = 2, n_neighbors = 3)
         nlm.fit(samples[:3])
         mapped = nlm.transform(samples)
