@@ -20,7 +20,6 @@ class Modifier(object):
         self.function = function
 
     def __call__(self, parameters):
-        print self.function(parameters)
         points = parameters.reshape((-1, self.nb_coords))
         means = numpy.mean(points, axis = 0)
         return (points - means).ravel()

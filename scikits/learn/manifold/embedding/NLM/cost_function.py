@@ -1,21 +1,9 @@
-
-# Matthieu Brucher
-# Last Change : 2007-07-18 14:14
+# -*- coding: utf-8 -*-
 
 import numpy
 import itertools
 
-def dist2hd(x,y):
-   """
-   Generate a 'coordinate' of the solution at a time
-   """
-   d = numpy.zeros((x.shape[0],y.shape[0]),dtype=x.dtype)
-   for i in xrange(x.shape[1]):
-       diff2 = x[:,i,None] - y[:,i]
-       diff2 **= 2
-       d += diff2
-   numpy.sqrt(d,d)
-   return d
+from ..tools import dist2hd
 
 class CostFunction(object):
   """

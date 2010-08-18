@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import unittest
 import numpy
@@ -35,7 +36,7 @@ def reduction(dists, function, n_coords):
     assert(n_coords == 2)
     assert(dists.shape == (7, 7))
     assert_array_almost_equal(distances, numpy.asarray(dists), decimal=2)
-                         
+
 class TestPopulateMatrix(TestCase):
     def test_main(self):
         neigh = create_neighborer(samples, n_neighbors=3)
@@ -81,7 +82,6 @@ class TestIsomap(TestCase):
         isomap.fit(samples[:3])
         mapped = isomap.transform(samples)
         assert_array_almost_equal(mapped[:3], isomap.embedding_, decimal=3)
-        
+
 if __name__ == "__main__":
   unittest.main()
-  

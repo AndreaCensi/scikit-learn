@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 A standard optimizer with a special object that modifies the resulting set of parameters
@@ -25,7 +26,7 @@ class StandardOptimizerModifying(optimizer.Optimizer):
       - a post-modifier, that acts on the set of parameters after an iteration (post_modifier)
     """
     optimizer.Optimizer.__init__(self, **kwargs)
-    self.stepKind = kwargs['step']
+    self.step = kwargs['step']
     self.optimal_point = kwargs['x0']
     self.line_search = kwargs['line_search']
     self.pre_modifier = kwargs.get('pre_modifier')
@@ -34,7 +35,7 @@ class StandardOptimizerModifying(optimizer.Optimizer):
     self.state['new_parameters'] = self.optimal_point
     self.state['new_value'] = self.function(self.optimal_point)
 
-    self.recordHistory(**self.state)
+    self.record_history(**self.state)
 
   def iterate(self):
     """
@@ -60,5 +61,5 @@ class StandardOptimizerModifying(optimizer.Optimizer):
     self.state['new_parameters'] = self.optimal_point
     self.state['new_value'] = self.function(self.optimal_point)
 
-    self.recordHistory(**self.state)
+    self.record_history(**self.state)
 
