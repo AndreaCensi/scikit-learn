@@ -1,10 +1,8 @@
+# -*- coding: utf-8 -*-
 
 """
 Piecewise Linear Mapping Regression module
 """
-
-# Matthieu Brucher
-# Last Change : 2008-11-06 10:50
 
 import math
 import numpy
