@@ -123,7 +123,7 @@ class NLM(BaseEstimator):
         Self
         """
         self.X_ = numpy.asanyarray(X)
-        self.embedding_ = reduct(optimize_cost_function,
+        self.embedding_, self.reduced_parameters_ = reduct(optimize_cost_function,
             NLM_CostFunction, self.X_, n_coords = self.n_coords)
         self.mapping = mapping_builder(self, self.mapping_kind,
             neigh = self.neigh, n_neighbors = self.n_neighbors - 1,
