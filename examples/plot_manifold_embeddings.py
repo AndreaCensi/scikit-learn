@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 ===================================
 Non-Linear dimensionality reduction
@@ -30,9 +31,36 @@ isomap = Isomap(n_coords=3, n_neighbors=30)
 X_r = isomap.fit(X).embedding_
 
 fig = pl.figure()
-ax = fig.gca(projection='3d')
+ax = Axes3D(fig)#fig.gca(projection='3d')
 for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
     ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
 ax.legend()
-ax.set_title('Embedding of IRIS dataset')
+ax.set_title('ISOMAP embedding of IRIS dataset')
+
+################################################################################
+# NLM
+from scikits.learn.manifold import NLM
+nlm = NLM(n_coords=3)
+X_r = nlm.fit(X).embedding_
+
+fig = pl.figure()
+ax = Axes3D(fig)#fig.gca(projection='3d')
+for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
+    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
+ax.legend()
+ax.set_title('NonLinear Mapping embedding of IRIS dataset')
+
+################################################################################
+# NLM
+from scikits.learn.manifold import GeodesicNLM
+nlm = GeodesicNLM(n_coords=3, n_neighbors=28)
+X_r = nlm.fit(X).embedding_
+
+fig = pl.figure()
+ax = Axes3D(fig)#fig.gca(projection='3d')
+for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
+    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
+ax.legend()
+ax.set_title('Geodesic NonLinear Mapping embedding of IRIS dataset')
+
 pl.show()

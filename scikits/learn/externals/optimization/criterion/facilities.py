@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Proposes a way to create a composite criterion
@@ -11,7 +12,7 @@ from composite_criteria import OrComposition
 def criterion(**kwargs):
   """
   Creates a composite criterion based on the formal parameters :
-    - iterations_max indicates the maximum number of iteration
+    - iterations_max indicates the maximum number of iterations
     - ftol is the maximum relative change of the value function
     - xtol is the maximum relative change of the parameters
     - gtol is the maximum gradient

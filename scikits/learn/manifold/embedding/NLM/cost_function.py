@@ -14,6 +14,7 @@ class CostFunction(object):
     Saves the distances to approximate
     """
     self.distances = distances
+    distances.tofile("test")
     self.factor = numpy.sum(distances)
     self.len = len(self.distances)
 
@@ -25,6 +26,7 @@ class CostFunction(object):
     d = dist2hd(params, params)
     d = (d-self.distances)**2/self.distances
     d[numpy.where(numpy.isnan(d))] = 0
+    d[numpy.where(numpy.isinf(d))] = 0
     return self.factor * numpy.sum(d)
 
   def gradient(self, parameters):

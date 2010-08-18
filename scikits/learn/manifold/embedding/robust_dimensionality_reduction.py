@@ -10,25 +10,7 @@ import math
 
 from scikits.learn.externals.optimization import line_search, step, optimizer, criterion
 
-class Recorder(object):
-    def __init__(self):
-        self.elements = []
-
-    def __call__(self, **state):
-        self.elements.append(state.copy())
-        del self.elements[-1]['function']
-
-class Modifier(object):
-    """
-    Recenters the points on each axis
-    """
-    def __init__(self, nb_coords):
-        self.nb_coords = nb_coords
-
-    def __call__(self, parameters):
-        points = parameters.reshape((-1, self.nb_coords))
-        means = numpy.mean(points, axis = 0)
-        return (points - means).ravel()
+from.dimensionality_reduction import Modifier
 
 class AddNoise(object):
     """

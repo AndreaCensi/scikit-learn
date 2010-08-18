@@ -17,6 +17,7 @@ class Modifier(object):
     """
     def __init__(self, nb_coords, function):
         self.nb_coords = nb_coords
+        self.function = function
 
     def __call__(self, parameters):
         points = parameters.reshape((-1, self.nb_coords))
