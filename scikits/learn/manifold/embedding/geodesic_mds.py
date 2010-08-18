@@ -12,7 +12,7 @@ import math
 
 #from scikits.optimization import *
 
-from ...base_estimator import BaseEstimator
+from .embedding import Embedding
 from ..mapping import builder as mapping_builder
 
 from .tools import create_neighborer
@@ -24,12 +24,12 @@ from .cca_function import CostFunction as CCA_CostFunction
 from .NLM import CostFunction as NLM_CostFunction
 
 from .dimensionality_reduction import optimize_cost_function
-#from .multiresolution_dimensionality_reduction import \
-#    optimize_cost_function as multiresolution_optimize_cost_function
+from .multiresolution_dimensionality_reduction import \
+    optimize_cost_function as multiresolution_optimize_cost_function
 from .cca_multiresolution_dimensionality_reduction import \
     optimize_cost_function as cca_multiresolution_optimize_cost_function
-#from .robust_dimensionality_reduction import optimize_cost_function 
-#    as robust_dimensionality_optimize_cost_function
+from .robust_dimensionality_reduction import optimize_cost_function \
+    as robust_dimensionality_optimize_cost_function
 
 def reduct(reduction, function, samples, n_coords, neigh, n_neighbors,
     neigh_alternate_arguments, temp_file, **kwargs):
@@ -86,7 +86,7 @@ def populate_distance_matrix_from_neighbors(points, neighborer):
 
     return distances
 
-class Isomap(BaseEstimator):
+class Isomap(Embedding):
     """
     Isomap embedding object
 
@@ -156,11 +156,8 @@ class Isomap(BaseEstimator):
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
         neigh_alternate_arguments = None, mapping_kind = "Barycenter", temp_file=None):
-        self.n_coords = n_coords
-        self.n_neighbors = n_neighbors if n_neighbors is not None else 9
-        self.neigh = neigh
-        self.neigh_alternate_arguments = neigh_alternate_arguments
-        self.mapping_kind = mapping_kind
+        Embedding.__init__(self, n_coords, n_neighbors, neigh,neigh_alternate_arguments,
+           mapping_kind)
         self.temp_file= temp_file
 
     def fit(self, X):
@@ -185,13 +182,7 @@ class Isomap(BaseEstimator):
             neigh_alternate_arguments = self.neigh_alternate_arguments)
         return self
 
-    def transform(self, X):
-        if self.mapping:
-            return self.mapping.transform(X)
-        else:
-            raise RuntimeError("No mapping was built for this embedding")
-
-class CCA(BaseEstimator):
+class CCA(Embedding):
     """
     CCA embedding object
 
@@ -262,11 +253,8 @@ class CCA(BaseEstimator):
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
         neigh_alternate_arguments = None, mapping_kind = "Barycenter",
         temp_file=None, max_dist = 99):
-        self.n_coords = n_coords
-        self.n_neighbors = n_neighbors if n_neighbors is not None else 9
-        self.neigh = neigh
-        self.neigh_alternate_arguments = neigh_alternate_arguments
-        self.mapping_kind = mapping_kind
+        Embedding.__init__(self, n_coords, n_neighbors, neigh,neigh_alternate_arguments,
+           mapping_kind)
         self.temp_file = temp_file
         self.max_dist = max_dist
 
@@ -291,12 +279,6 @@ class CCA(BaseEstimator):
             neigh = self.neigh, n_neighbors = self.n_neighbors - 1,
             neigh_alternate_arguments = self.neigh_alternate_arguments)
         return self
-
-    def transform(self, X):
-        if self.mapping:
-            return self.mapping.transform(X)
-        else:
-            raise RuntimeError("No mapping was built for this embedding")
 
 def robustCompression(samples, nb_coords, **kwargs):
     """
@@ -324,7 +306,7 @@ def robustMultiresolutionCompression(samples, nb_coords, **kwargs):
     return reduct(multiresolution_optimize_cost_function, RobustCostFunction,
         samples, nb_coords, **kwargs)
 
-class GeodesicNLM(BaseEstimator):
+class GeodesicNLM(Embedding):
     """
     NLM embedding object with geodesic distances approximation
 
@@ -394,11 +376,8 @@ class GeodesicNLM(BaseEstimator):
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
         neigh_alternate_arguments = None, mapping_kind = "Barycenter", temp_file=None):
-        self.n_coords = n_coords
-        self.n_neighbors = n_neighbors if n_neighbors is not None else 9
-        self.neigh = neigh
-        self.neigh_alternate_arguments = neigh_alternate_arguments
-        self.mapping_kind = mapping_kind
+        Embedding.__init__(self, n_coords, n_neighbors, neigh,neigh_alternate_arguments,
+           mapping_kind)
         self.temp_file= temp_file
 
     def fit(self, X):
@@ -422,10 +401,3 @@ class GeodesicNLM(BaseEstimator):
             neigh = self.neigh, n_neighbors = self.n_neighbors - 1,
             neigh_alternate_arguments = self.neigh_alternate_arguments)
         return self
-
-    def transform(self, X):
-        if self.mapping:
-            return self.mapping.transform(X)
-        else:
-            raise RuntimeError("No mapping was built for this embedding")
-
