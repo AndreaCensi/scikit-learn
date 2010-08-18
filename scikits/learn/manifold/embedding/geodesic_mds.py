@@ -225,7 +225,7 @@ class CCA(BaseEstimator):
       name of a file for caching the distance matrix
 
     max_dist : float
-      maximum distance to preserve
+      percentage of maximum distance to preserve (default is 99%)
 
     Attributes
     ----------

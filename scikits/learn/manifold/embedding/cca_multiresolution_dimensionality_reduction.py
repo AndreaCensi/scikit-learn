@@ -31,7 +31,7 @@ def optimize_cost_function(distances, function, nb_coords, max_dist, **kwargs):
 
     lineSearch = line_search.FibonacciSectionSearch(alpha_step = 1., min_alpha_step = 0.0001)
 
-    fun = function((distances[indices[0:10]])[:, indices[0:10]], nb_coords, 100, **kwargs)
+    fun = function((distances[indices[0:10]])[:, indices[0:10]], nb_coords, max_dist, **kwargs)
     optimi = optimizer.StandardOptimizerModifying(
       function = fun,
       step = step.GradientStep(),
@@ -46,7 +46,7 @@ def optimize_cost_function(distances, function, nb_coords, max_dist, **kwargs):
         j = max(i-100, 0)
         maxdist = i * (max_dist - 99.9) / distances.shape[0] + 99.9
 
-        fun = function((distances[indices[j:i]])[:, indices[j:i]], nb_coords, max_dist = 100, **kwargs)
+        fun = function((distances[indices[j:i]])[:, indices[j:i]], nb_coords, max_dist = max_dist, **kwargs)
         minc = numpy.min(x0[indices[0:i]], axis = 0)
         maxc = numpy.max(x0[indices[0:i]], axis = 0)
 

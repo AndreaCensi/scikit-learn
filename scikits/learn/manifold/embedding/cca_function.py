@@ -21,15 +21,14 @@ class CostFunction(ForwardFiniteDifferences):
         self.distances = distances
         self.len = len(self.distances)
 
-        if max_dist < 100:
-            sortedDistances = distances.flatten()
-            sortedDistances.sort()
-            sortedDistances = sortedDistances[distances.shape[0]:]
+        max_dist = max_dist if max_dist < 99 else 99
+        max_dist = max_dist if max_dist > 0 else 0
 
-            self.max_dist = (
-                sortedDistances[max_dist * len(sortedDistances) // 100])
-        else:
-            self.max_dist = 10e20
+        sortedDistances = distances.flatten()
+        sortedDistances.sort()
+        sortedDistances = sortedDistances[distances.shape[0]:]
+
+        self.max_dist = (sortedDistances[max_dist * len(sortedDistances) // 100])
 
     def __call__(self, parameters):
         """
@@ -39,6 +38,7 @@ class CostFunction(ForwardFiniteDifferences):
         d = dist2hd(params, params)
         dist = self.distances < self.max_dist
         d = (d-self.distances)**2 * dist
+        d[numpy.where(numpy.isinf(d))] = 0
         return numpy.sum(d)
 
     def gradient(self, parameters):
