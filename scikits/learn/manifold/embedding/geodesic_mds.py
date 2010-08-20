@@ -457,11 +457,8 @@ class RobustMultiresolutionEmbedding(Embedding):
     sigma : float
       Distances lower than sigma (percentage) will have a smaller weight
 
-    ftol : float
-      Tolerance for the inner cost function
-
-    gtol : float
-      Tolerance for the gradient of the cost function
+    xtol : float
+      Tolerance for the parameters
 
     iterations_max : integer
       Max number of iterations
@@ -504,7 +501,7 @@ class RobustMultiresolutionEmbedding(Embedding):
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
         neigh_alternate_arguments = None, epsilon = 0.0000001, tau = 60,
-        sigma = 1, ftol = 0.00000001, gtol = 0.00000001, iterations_max = 10000,
+        sigma = 1, xtol = 0.001, iterations_max = 100,
         mapping_kind = "Barycenter", temp_file=None):
         Embedding.__init__(self, n_coords, n_neighbors,
            neigh,neigh_alternate_arguments, mapping_kind)
@@ -512,8 +509,7 @@ class RobustMultiresolutionEmbedding(Embedding):
         self.epsilon = epsilon
         self.tau = tau
         self.sigma = sigma
-        self.ftol = ftol
-        self.gtol = gtol
+        self.xtol = xtol
         self.iterations_max = iterations_max
 
     def fit(self, X):
@@ -534,8 +530,8 @@ class RobustMultiresolutionEmbedding(Embedding):
             neigh = self.neigh, n_neighbors = self.n_neighbors,
             neigh_alternate_arguments = self.neigh_alternate_arguments,
             temp_file = self.temp_file, epsilon = self.epsilon,
-            tau = self.tau, sigma = self.sigma, ftol = self.ftol,
-            gtol = self.gtol, iterations_max = self.iterations_max)
+            tau = self.tau, sigma = self.sigma, xtol = self.xtol,
+            iterations_max = self.iterations_max)
         self.mapping = mapping_builder(self, self.mapping_kind,
             neigh = self.neigh, n_neighbors = self.n_neighbors - 1,
             neigh_alternate_arguments = self.neigh_alternate_arguments)

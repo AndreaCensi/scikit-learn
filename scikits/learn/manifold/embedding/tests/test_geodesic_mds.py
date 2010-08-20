@@ -14,7 +14,7 @@ from nose.tools import raises
 
 from ..tools import create_neighborer, dist2hd
 from ..geodesic_mds import reduct, populate_distance_matrix_from_neighbors, \
-    Isomap, CCA, GeodesicNLM
+    Isomap, CCA, GeodesicNLM, RobustEmbedding, RobustMultiresolutionEmbedding
 
 samples = numpy.array((0., 0., 0.,
   1., 0., 0.,
@@ -134,6 +134,59 @@ class TestGeodesicNLM(TestCase):
         nlm.fit(samples[:3])
         mapped = nlm.transform(samples)
         assert_array_almost_equal(mapped[:3], nlm.embedding_, decimal=3)
+
+class TestRobustEmbedding(TestCase):
+    def test_fit(self):
+        numpy.random.seed(0)
+        robust = RobustEmbedding(n_coords = 2, mapping_kind = None,
+            n_neighbors = 3, ftol=0.001)
+        assert(robust.fit(samples[:3]) == robust)
+        assert(hasattr(robust, 'embedding_'))
+        assert(robust.embedding_.shape == (3, 2))
+        assert_array_almost_equal(dist2hd(robust.embedding_[:3],
+            robust.embedding_[:3])**2, distances[:3, :3], decimal = 3)
+
+    @raises(RuntimeError)
+    def test_transform_raises(self):
+        numpy.random.seed(0)
+        robust = RobustEmbedding(n_coords = 2, mapping_kind = None,
+            n_neighbors = 3, ftol=0.001)
+        robust.fit(samples[:3])
+        robust.transform(samples[0])
+
+    def test_transform(self):
+        numpy.random.seed(0)
+        robust = RobustEmbedding(n_coords = 2, n_neighbors = 3, ftol=0.001)
+        robust.fit(samples[:3])
+        mapped = robust.transform(samples)
+        assert_array_almost_equal(mapped[:3], robust.embedding_, decimal=3)
+
+class TestRobustMultiresolutionEmbedding(TestCase):
+    def test_fit(self):
+        numpy.random.seed(0)
+        robust = RobustMultiresolutionEmbedding(n_coords = 2,
+            mapping_kind = None, n_neighbors = 3, xtol=0.0001)
+        assert(robust.fit(samples[:3]) == robust)
+        assert(hasattr(robust, 'embedding_'))
+        assert(robust.embedding_.shape == (3, 2))
+        assert_array_almost_equal(dist2hd(robust.embedding_[:3],
+            robust.embedding_[:3])**2, distances[:3, :3], decimal = 3)
+
+    @raises(RuntimeError)
+    def test_transform_raises(self):
+        numpy.random.seed(0)
+        robust = RobustMultiresolutionEmbedding(n_coords = 2,
+            mapping_kind = None, n_neighbors = 3, xtol=0.0001)
+        robust.fit(samples[:3])
+        robust.transform(samples[0])
+
+    def test_transform(self):
+        numpy.random.seed(0)
+        robust = RobustMultiresolutionEmbedding(n_coords = 2, n_neighbors = 3,
+            xtol=0.0001)
+        robust.fit(samples[:3])
+        mapped = robust.transform(samples)
+        assert_array_almost_equal(mapped[:3], robust.embedding_, decimal=3)
 
 if __name__ == "__main__":
   unittest.main()

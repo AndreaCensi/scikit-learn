@@ -13,8 +13,9 @@ import ctypes
 import sys
 
 from ..tools import dist2hd
+from scikits.learn.externals.optimization.helpers import ForwardFiniteDifferences
 
-class CostFunction(object):
+class CostFunction(ForwardFiniteDifferences):
     """
     Wrapper with ctypes around the cost function
     """
@@ -23,6 +24,7 @@ class CostFunction(object):
         """
         Creates the correct cost function with the good arguments
         """
+        ForwardFiniteDifferences.__init__(self)
         sortedDistances = distances.flatten()
         sortedDistances.sort()
         sortedDistances = sortedDistances[distances.shape[0]:]
@@ -49,9 +51,11 @@ class CostFunction(object):
             numpy.sqrt((self._tau + square_diff) / self._tau) * \
             self.distances / (self._sigma + self.distances)
 
+        cost[numpy.where(self.distances == 0)] = 0
+
         return numpy.sum(cost)
 
-    def gradient(self, parameters):
+    def gradient_(self, parameters):
         """
         Computes the gradient of the function
         """
@@ -71,6 +75,8 @@ class CostFunction(object):
             (numpy.sqrt(self._tau + square_diff) * estimated_distances) * \
             self.distances / (self._sigma + self.distances)
 
-        return numpy.sum(cost * \
+        cost[numpy.where(self.distances == 0)] = 0
+
+        return numpy.sum(cost[:,:,None] * \
             (estimated_coordinates[:, None] - estimated_coordinates[None,:]),
             axis=0).flatten()
