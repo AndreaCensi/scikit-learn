@@ -44,9 +44,25 @@ Diffusion Maps
 NonLinear Mapping (NLM)
 -----------------------
 
+NLM[5] is one of the first embedding algorithms. Its goal is to minimize a
+quadratic cost function weighted with the inverse of the original distances.
+This allows stable estimation of an embedding space.
+
+Curvilinear component analysis (CCA)
+------------------------------------
+
+Originally implemented as a Self Organizing Neural Network, CCA[6] tries to
+find an embedding space where small distances are preserved. It is highly
+instable as badly estimated distances (distances in the embedding space far
+greater than in the original space) lead to a null cost.
+
 
 Embedding New Data
 ==================
+
+Embedding new data is done through mapping the original space into the embedding
+space. Several algorithms are available, depending on whether the original data
+can be kept and on whether the associated kernel[7] is known.
 
 Barycenter
 ----------
@@ -69,3 +85,12 @@ Notes
            "A Global Geometric Framework for Nonlinear Dimensionality 
            Reduction,"
            Science, 290(5500), pp. 2319-2323, 2000
+
+    .. [5] JR. J. Sammon.,
+           "Data reduction with NonLinear Mapping algorithm"
+           IEEE Transactions on Computers, C-18(No. 5):401--409, May 1969
+
+    .. [6] doi: 10.1109/72.554199
+
+    .. [7] Schölkopf, B. and Smola, A.J.,
+           "Learning with kernels"

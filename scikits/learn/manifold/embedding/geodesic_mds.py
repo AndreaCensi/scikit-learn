@@ -354,9 +354,9 @@ class GeodesicNLM(Embedding):
     Notes
     -----
 
-    .. [1]     Data reduction with NonLinear Mapping algorithm
-    (JR. J. Sammon. A nonlinear mapping for data structure analysis.
-    IEEE Transactions on Computers, C-18(No. 5):401--409, May 1969):
+    .. [1] JR. J. Sammon.,
+           "Data reduction with NonLinear Mapping algorithm"
+           IEEE Transactions on Computers, C-18(No. 5):401--409, May 1969
 
 
     Examples
