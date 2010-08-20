@@ -23,11 +23,9 @@ class AddNoise(object):
 
     def __call__(self, parameters):
       cost = self.function(parameters)
-      print cost
       points = parameters.reshape((-1, self.nb_coords))
       cost /= points.shape[0]**2 * points.shape[1] # mean cost per distance
       cost = math.sqrt(cost)
-      print cost
 
       if (cost * self.temp)**(1/8.) > 0:
           points += numpy.random.normal(loc = 0, scale = \
@@ -36,7 +34,8 @@ class AddNoise(object):
 
       return points.ravel()
 
-def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
+def optimize_cost_function(distances, function, nb_coords = 2,
+    ftol = 0.00000001, gtol = 0.00000001, iterations_max = 10000, **kwargs):
     """
     Computes a new coordinates system that respects the distances between each
     point
@@ -46,9 +45,9 @@ def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
       - epsilon is a small number
       - sigma is the percentage of distances below which the weight of the cost
       function is diminished
-      - x1 is the percentage of distances '' which the weight of the cost
+      - sigma is the percentage of distances '' which the weight of the cost
       function is diminished
-      - x2 is the percentage of distances that indicates the limit when
+      - tau is the percentage of distances that indicates the limit when
       differences between estimated and real distances are too high and when
       the cost becomes quadratic
     """
@@ -64,12 +63,12 @@ def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
     optimi = optimizer.StandardOptimizerModifying(
       function = function,
       step = step.GradientStep(),
-      criterion = criterion.criterion(ftol = 0.00000001,
-          iterations_max = 10000),
+      criterion = criterion.criterion(ftol = ftol, gtol = gtol,
+          iterations_max = iterations_max),
       x0 = x0,
       line_search = line_search.FixedLastStepModifier(step_factor = 4.,
           line_search = line_search.FibonacciSectionSearch(alpha_step = 1.,
-              min_alpha_step = 0.0001)),
+              min_alpha_step = 0.001)),
       pre_modifier = AddNoise(nb_coords, function),
       post_modifier = Modifier(nb_coords))
 
@@ -78,4 +77,4 @@ def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
 
     numpy.seterr(**err)
 
-    return optimal
+    return optimal, optimi.state

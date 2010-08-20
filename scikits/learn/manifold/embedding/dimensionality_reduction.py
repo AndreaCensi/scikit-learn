@@ -23,7 +23,8 @@ class Modifier(object):
         means = numpy.mean(points, axis = 0)
         return (points - means).ravel()
 
-def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
+def optimize_cost_function(distances, function, nb_coords = 2,
+    ftol = 0.00000001, gtol = 0.00000001, iterations_max = 10000, **kwargs):
     """
     Computes a new coordinates system that respects the distances between each point
     Parameters :
@@ -40,9 +41,11 @@ def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
     optimi = optimizer.StandardOptimizerModifying(
       function = function,
       step = step.FRPRPConjugateGradientStep(),
-      criterion = criterion.criterion(gtol = 0.000001, ftol = 0.000001, iterations_max = 10000),
+      criterion = criterion.criterion(ftol = ftol, gtol = gtol,
+          iterations_max = iterations_max),
       x0 = x0,
-      line_search = line_search.StrongWolfePowellRule(), post_modifier = Modifier(nb_coords))
+      line_search = line_search.StrongWolfePowellRule(),
+      post_modifier = Modifier(nb_coords))
 
     optimal = optimi.optimize()
     optimal = optimal.reshape(-1, nb_coords)

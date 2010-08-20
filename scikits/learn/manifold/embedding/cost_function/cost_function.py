@@ -46,8 +46,8 @@ class CostFunction(object):
         square_diff = (estimated_distances - self.distances)**2
 
         cost = numpy.sqrt(self._epsilon + square_diff) * \
-            numpy.sqrt(self._tau + square_diff) / self._tau * \
-            self.distances / (self._signma + self.distances)
+            numpy.sqrt((self._tau + square_diff) / self._tau) * \
+            self.distances / (self._sigma + self.distances)
 
         return numpy.sum(cost)
 
@@ -55,5 +55,22 @@ class CostFunction(object):
         """
         Computes the gradient of the function
         """
-    #    _cost_function.gradient_cost_function(self._cf, parameters.ctypes.data_as(ctypes.POINTER(ctypes.c_double)), len(parameters), ALLOCATOR(self.allocator))
-        return self.grad
+        estimated_coordinates = parameters.reshape(-1, self._nb_coords)
+        estimated_distances = dist2hd(estimated_coordinates,
+            estimated_coordinates)
+
+        square_diff = (estimated_distances - self.distances)**2
+
+        cost = (estimated_distances - self.distances) / \
+            (numpy.sqrt(self._epsilon + square_diff) * estimated_distances) * \
+            numpy.sqrt((self._tau + square_diff) / self._tau) * \
+            self.distances / (self._sigma + self.distances)
+
+        cost += numpy.sqrt(self._epsilon + square_diff) * \
+            (estimated_distances - self.distances) / numpy.sqrt(self._tau) / \
+            (numpy.sqrt(self._tau + square_diff) * estimated_distances) * \
+            self.distances / (self._sigma + self.distances)
+
+        return numpy.sum(cost * \
+            (estimated_coordinates[:, None] - estimated_coordinates[None,:]),
+            axis=0).flatten()

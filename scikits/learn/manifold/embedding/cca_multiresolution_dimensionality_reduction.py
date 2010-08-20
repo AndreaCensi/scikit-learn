@@ -12,16 +12,11 @@ from scikits.learn.externals.optimization import line_search, step, optimizer, c
 
 from.dimensionality_reduction import Modifier
 
-def optimize_cost_function(distances, function, nb_coords, max_dist, **kwargs):
+def optimize_cost_function(distances, function, nb_coords, max_dist,
+    xtol = 0.01, iterations_max = 100, **kwargs):
     """
-    Computes a new coordinates system that respects the distances between each point. Each iteration adds a new point in the process
-    Parameters :
-      - distances is the distances to respect
-      - nb_coords is the number of remaining coordinates
-      - epsilon is a small number
-      - sigma is the percentage of distances below which the weight of the cost function is diminished
-      - x1 is the percentage of distances '' which the weight of the cost function is diminished
-      - x2 is the percentage of distances that indicates the limit when differences between estimated and real distances are too high and when the cost becomes quadratic
+    Computes a new coordinates system that respects the distances between each
+    point. Each iteration adds a new point in the process
     """
     std = numpy.std(distances)
     x0 = numpy.random.normal(0., 0.1, size = (distances.shape[0], nb_coords))
@@ -35,7 +30,7 @@ def optimize_cost_function(distances, function, nb_coords, max_dist, **kwargs):
     optimi = optimizer.StandardOptimizerModifying(
       function = fun,
       step = step.GradientStep(),
-      criterion = criterion.OrComposition(criterion.AbsoluteParametersCriterion(xtol = 0.001), criterion.IterationCriterion(iterations_max = 100)),
+      criterion = criterion.OrComposition(criterion.AbsoluteParametersCriterion(xtol = xtol), criterion.IterationCriterion(iterations_max = iterations_max)),
       x0 = x0[indices[0:10]].flatten(),
       line_search = lineSearch, post_modifier = Modifier(nb_coords))
     optimal = optimi.optimize()
@@ -53,7 +48,7 @@ def optimize_cost_function(distances, function, nb_coords, max_dist, **kwargs):
         optimi = optimizer.StandardOptimizerModifying(
           function = fun,
           step = step.PartialStep(step.GradientStep(), i - j, i - j - 1),
-          criterion = criterion.OrComposition(criterion.AbsoluteParametersCriterion(xtol = 0.01 * numpy.mean(maxc-minc)), criterion.IterationCriterion(iterations_max = 100)),
+          criterion = criterion.OrComposition(criterion.AbsoluteParametersCriterion(xtol = xtol * numpy.mean(maxc-minc)), criterion.IterationCriterion(iterations_max = iterations_max)),
           x0 = x0[indices[j:i]].flatten(),
           line_search = lineSearch, post_modifier = Modifier(nb_coords))
         optimal = optimi.optimize()

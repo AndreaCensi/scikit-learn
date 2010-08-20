@@ -69,4 +69,4 @@ def optimize_cost_function(distances, function, nb_coords = 2, **kwargs):
         optimal = optimal.reshape(-1, nb_coords)
         x0[indices[0:i]] = optimal
 
-    return x0
+    return x0, {}

@@ -64,6 +64,15 @@ class NLM(Embedding):
           * an instance : an instance that will be fit() and then
               transform()ed
 
+    ftol : float
+      Tolerance for the inner cost function
+
+    gtol : float
+      Tolerance for the gradient of the cost function
+
+    iterations_max : integer
+      Max number of iterations
+
     Attributes
     ----------
     embedding_ : array_like
@@ -100,9 +109,13 @@ class NLM(Embedding):
     >>> nlm = nlm.fit(samples)
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
-        neigh_alternate_arguments = None, mapping_kind = "Barycenter"):
-        Embedding.__init__(self, n_coords, n_neighbors, neigh,neigh_alternate_arguments,
-           mapping_kind)
+        neigh_alternate_arguments = None, ftol = 0.00000001, gtol = 0.00000001,
+        iterations_max = 10000, mapping_kind = "Barycenter"):
+        Embedding.__init__(self, n_coords, n_neighbors,
+            neigh,neigh_alternate_arguments, mapping_kind)
+        self.ftol = ftol
+        self.gtol = gtol
+        self.iterations_max = iterations_max
 
     def fit(self, X):
         """
@@ -117,7 +130,8 @@ class NLM(Embedding):
         """
         self.X_ = numpy.asanyarray(X)
         self.embedding_, self.reduced_parameters_ = reduct(optimize_cost_function,
-            NLM_CostFunction, self.X_, n_coords = self.n_coords)
+            NLM_CostFunction, self.X_, n_coords = self.n_coords, ftol = self.ftol,
+            gtol = self.gtol, iterations_max = self.iterations_max)
         self.mapping = mapping_builder(self, self.mapping_kind,
             neigh = self.neigh, n_neighbors = self.n_neighbors - 1,
             neigh_alternate_arguments = self.neigh_alternate_arguments)
