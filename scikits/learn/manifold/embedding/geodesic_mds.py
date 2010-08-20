@@ -496,7 +496,7 @@ class RobustMultiresolutionEmbedding(Embedding):
       1., 1., 0.5, \
       )).reshape((-1,3))
     >>> robust = RobustMultiresolutionEmbedding(n_coords = 2, \
-        mapping_kind = None, n_neighbors=3, ftol = 0.01)
+        mapping_kind = None, n_neighbors=3)
     >>> robust = robust.fit(samples)
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
