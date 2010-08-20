@@ -12,42 +12,48 @@ import numpy
 import ctypes
 import sys
 
+from ..tools import dist2hd
+
 class CostFunction(object):
-  """
-  Wrapper with ctypes around the cost function
-  """
-  def __init__(self, distances, nb_coords = 2, epsilon = 0.0000001, sigma = 1, tau = 60, **kwargs):
     """
-    Creates the correct cost function with the good arguments
+    Wrapper with ctypes around the cost function
     """
-    sortedDistances = distances.flatten()
-    sortedDistances.sort()
-    sortedDistances = sortedDistances[distances.shape[0]:]
+    def __init__(self, distances, nb_coords = 2, epsilon = 0.0000001, sigma = 1,
+      tau = 60, **kwargs):
+        """
+        Creates the correct cost function with the good arguments
+        """
+        sortedDistances = distances.flatten()
+        sortedDistances.sort()
+        sortedDistances = sortedDistances[distances.shape[0]:]
 
-    self._nb_coords = nb_coords
-    self._epsilon = epsilon
-    self._sigma = sigma
+        self._nb_coords = nb_coords
+        self._epsilon = epsilon
+        self._sigma = (sortedDistances[sigma * len(sortedDistances) // 100])
+        self._tau = (sortedDistances[tau * len(sortedDistances) // 100]) ** 2
+        self.distances = distances
 
-    sigma = (sortedDistances[sigma * len(sortedDistances) // 100])
-    self._x1 = tau
-    tau = (sortedDistances[tau * len(sortedDistances) // 100]) ** 2
-    del sortedDistances
-    self.grad = None
-    self.distances = distances.copy()
-    #self._cf = _cost_function.allocate_cost_function(self.distances.ctypes.data_as(ctypes.POINTER(ctypes.c_double)), distances.shape[0], distances.shape[1], nb_coords, epsilon, sigma, tau)
+        del sortedDistances
 
-  def __call__(self, parameters):
-    """
-    Computes the cost of a parameter
-    """
-    parameters = parameters.copy()
-#    return _cost_function.call_cost_function(self._cf, parameters.ctypes.data_as(ctypes.POINTER(ctypes.c_double)), len(parameters))
+    def __call__(self, parameters):
+        """
+        Computes the cost of a parameter
+        """
+        estimated_coordinates = parameters.reshape(-1, self._nb_coords)
+        estimated_distances = dist2hd(estimated_coordinates,
+            estimated_coordinates)
 
-  def gradient(self, parameters):
-    """
-    Computes the gradient of the function
-    """
-    self.grad = None
-    parameters = parameters.copy()
-#    _cost_function.gradient_cost_function(self._cf, parameters.ctypes.data_as(ctypes.POINTER(ctypes.c_double)), len(parameters), ALLOCATOR(self.allocator))
-    return self.grad
+        square_diff = (estimated_distances - self.distances)**2
+
+        cost = numpy.sqrt(self._epsilon + square_diff) * \
+            numpy.sqrt(self._tau + square_diff) / self._tau * \
+            self.distances / (self._signma + self.distances)
+
+        return numpy.sum(cost)
+
+    def gradient(self, parameters):
+        """
+        Computes the gradient of the function
+        """
+    #    _cost_function.gradient_cost_function(self._cf, parameters.ctypes.data_as(ctypes.POINTER(ctypes.c_double)), len(parameters), ALLOCATOR(self.allocator))
+        return self.grad
