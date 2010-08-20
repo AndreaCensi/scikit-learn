@@ -24,6 +24,14 @@ X = iris.data
 y = iris.target
 target_names = iris.target_names
 
+def display_embedding(embedding, title):
+    fig = pl.figure()
+    ax = Axes3D(fig)#fig.gca(projection='3d')
+    for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
+        ax.scatter(embedding[y==i,0], embedding[y==i,1], embedding[y==i,2], c=c, label=target_name)
+    ax.legend()
+    ax.set_title(title)
+
 ################################################################################
 # PCA
 print "Computing PCA embedding"
@@ -31,12 +39,7 @@ from scikits.learn.manifold import PCA
 pca = PCA(n_coords=3)
 X_r = pca.fit(X).embedding_
 
-fig = pl.figure()
-ax = Axes3D(fig)#fig.gca(projection='3d')
-for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
-    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
-ax.legend()
-ax.set_title('ISOMAP embedding of IRIS dataset')
+display_embedding(X_r, 'PCA embedding of IRIS dataset')
 
 ################################################################################
 # Isomap
@@ -45,12 +48,7 @@ from scikits.learn.manifold import Isomap
 isomap = Isomap(n_coords=3, n_neighbors=30)
 X_r = isomap.fit(X).embedding_
 
-fig = pl.figure()
-ax = Axes3D(fig)#fig.gca(projection='3d')
-for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
-    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
-ax.legend()
-ax.set_title('ISOMAP embedding of IRIS dataset')
+display_embedding(X_r, 'ISOMAP embedding of IRIS dataset')
 
 ################################################################################
 # CCA
@@ -59,12 +57,7 @@ from scikits.learn.manifold import CCA
 cca = CCA(n_coords=3, n_neighbors=30, max_dist=75)
 X_r = cca.fit(X).embedding_
 
-fig = pl.figure()
-ax = Axes3D(fig)#fig.gca(projection='3d')
-for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
-    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
-ax.legend()
-ax.set_title('CCA embedding of IRIS dataset')
+display_embedding(X_r, 'CCA embedding of IRIS dataset')
 
 ################################################################################
 # NLM
@@ -73,12 +66,7 @@ from scikits.learn.manifold import NLM
 nlm = NLM(n_coords=3)
 X_r = nlm.fit(X).embedding_
 
-fig = pl.figure()
-ax = Axes3D(fig)#fig.gca(projection='3d')
-for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
-    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
-ax.legend()
-ax.set_title('NonLinear Mapping embedding of IRIS dataset')
+display_embedding(X_r, 'NonLinear Mapping embedding of IRIS dataset')
 
 ################################################################################
 # NLM
@@ -87,11 +75,6 @@ from scikits.learn.manifold import GeodesicNLM
 nlm = GeodesicNLM(n_coords=3, n_neighbors=28)
 X_r = nlm.fit(X).embedding_
 
-fig = pl.figure()
-ax = Axes3D(fig)#fig.gca(projection='3d')
-for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
-    ax.scatter(X_r[y==i,0], X_r[y==i,1], X_r[y==i,2], c=c, label=target_name)
-ax.legend()
-ax.set_title('Geodesic NonLinear Mapping embedding of IRIS dataset')
+display_embedding(X_r, 'Geodesic NonLinear Mapping embedding of IRIS dataset')
 
 pl.show()
