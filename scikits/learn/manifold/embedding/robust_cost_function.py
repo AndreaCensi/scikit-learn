@@ -45,14 +45,14 @@ class CostFunction(ForwardFiniteDifferences):
         square_diff = (estimated_distances - self.distances)**2
 
         cost = numpy.sqrt(self._epsilon + square_diff) * \
-            numpy.sqrt((self._tau + square_diff) / self._tau) * \
+            numpy.sqrt(self._tau + square_diff) * \
             self.distances / (self._sigma + self.distances)
 
         cost[numpy.where(self.distances == 0)] = 0
 
         return numpy.sum(cost)
 
-    def gradient_(self, parameters):
+    def gradient(self, parameters):
         """
         Computes the gradient of the function
         """
@@ -62,18 +62,21 @@ class CostFunction(ForwardFiniteDifferences):
 
         square_diff = (estimated_distances - self.distances)**2
 
-        cost = (estimated_distances - self.distances) / \
-            (numpy.sqrt(self._epsilon + square_diff) * estimated_distances) * \
-            numpy.sqrt((self._tau + square_diff) / self._tau) * \
-            self.distances / (self._sigma + self.distances)
+        cost = 1 / (numpy.sqrt(self._epsilon + square_diff) * self.distances) * \
+            numpy.sqrt(self._tau + square_diff)
 
-        cost += numpy.sqrt(self._epsilon + square_diff) * \
-            (estimated_distances - self.distances) / numpy.sqrt(self._tau) / \
-            (numpy.sqrt(self._tau + square_diff) * estimated_distances) * \
-            self.distances / (self._sigma + self.distances)
+        cost += numpy.sqrt(self._epsilon + square_diff) / \
+            (numpy.sqrt(self._tau + square_diff) * self.distances)
+
+        cost *= self.distances / (self._sigma + self.distances) * \
+             (estimated_distances - self.distances)
 
         cost[numpy.where(self.distances == 0)] = 0
 
-        return numpy.sum(cost[:,:,None] * \
-            (estimated_coordinates[:, None] - estimated_coordinates[None,:]),
+        grad = numpy.sum(cost[:,:,None] * \
+            (estimated_coordinates[None, :] - estimated_coordinates[:, None]),
             axis=0).flatten()
+        print grad
+        print ForwardFiniteDifferences.gradient(self, parameters)
+        print grad / ForwardFiniteDifferences.gradient(self, parameters)
+        return grad
