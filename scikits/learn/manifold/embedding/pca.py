@@ -7,10 +7,10 @@ PCA module, by Zachary Pincus
 import numpy
 import numpy.linalg
 
-from ...base_estimator import BaseEstimator
+from .embedding import Embedding
 from ..mapping import builder as mapping_builder
 
-class PCA(BaseEstimator):
+class PCA(Embedding):
     """
     PCA embedding object
 
@@ -72,11 +72,8 @@ class PCA(BaseEstimator):
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
         neigh_alternate_arguments = None, mapping_kind = "Barycenter", temp_file=None):
-        self.n_coords = n_coords
-        self.n_neighbors = n_neighbors if n_neighbors is not None else 9
-        self.neigh = neigh
-        self.neigh_alternate_arguments = neigh_alternate_arguments
-        self.mapping_kind = mapping_kind
+        Embedding.__init__(self, n_coords, n_neighbors,
+            neigh,neigh_alternate_arguments, mapping_kind)
         self.temp_file= temp_file
 
     def fit(self, X):
@@ -96,12 +93,6 @@ class PCA(BaseEstimator):
             neigh = self.neigh, n_neighbors = self.n_neighbors - 1,
             neigh_alternate_arguments = self.neigh_alternate_arguments)
         return self
-
-    def transform(self, X):
-        if self.mapping:
-            return self.mapping.transform(X)
-        else:
-            raise RuntimeError("No mapping was built for this embedding")
 
     def _project(self, samples, n_coords):
         """

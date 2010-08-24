@@ -8,7 +8,7 @@ from ..mapping import builder as mapping_builder
 
 from .tools import dist2hd
 from .dimensionality_reduction import optimize_cost_function
-from .NLM import CostFunction as NLM_CostFunction
+from .NLM_cost_function import CostFunction as NLM_CostFunction
 
 def reduct(reduction, function, samples, n_coords, **kwargs):
     """

@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 
 import inspect
 
-from ...base_estimator import BaseEstimator
+from ...base import BaseEstimator
 
 from barycenter import Barycenter
 

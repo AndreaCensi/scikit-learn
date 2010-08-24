@@ -3,7 +3,7 @@
 import numpy
 import itertools
 
-from ..tools import dist2hd
+from .tools import dist2hd
 
 class CostFunction(object):
   """

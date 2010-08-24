@@ -3,7 +3,7 @@
 import numpy
 import math
 
-from ...base_estimator import BaseEstimator
+from ...base import BaseEstimator
 
 class Embedding(BaseEstimator):
     """

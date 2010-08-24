@@ -7,12 +7,9 @@ This module is not meant to be accessed directly, but through helper
 functions that lie in the compression module.
 """
 
-from numpy.ctypeslib import ndpointer, load_library
 import numpy
-import ctypes
-import sys
 
-from ..tools import dist2hd
+from .tools import dist2hd
 from scikits.learn.externals.optimization.helpers import ForwardFiniteDifferences
 
 class CostFunction(ForwardFiniteDifferences):

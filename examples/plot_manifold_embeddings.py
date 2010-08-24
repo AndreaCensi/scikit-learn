@@ -28,7 +28,7 @@ def display_embedding(embedding, title):
     fig = pl.figure()
     ax = Axes3D(fig)#fig.gca(projection='3d')
     for c, i, target_name in zip("rgb", [0, 1, 2], target_names):
-        ax.scatter(embedding[y==i,0], embedding[y==i,1], embedding[y==i,2], c=c, label=target_name)
+        ax.scatter(embedding[y==i,0], embedding[y==i,1], embedding[y==i,2], c=c, label=target_name, s=20)
     ax.legend()
     ax.set_title(title)
 

@@ -20,8 +20,8 @@ from .distances import numpy_floyd
 from .euclidian_mds import mds as euclidian_mds
 
 from .cca_function import CostFunction as CCA_CostFunction
-from .cost_function import CostFunction as RobustCostFunction
-from .NLM import CostFunction as NLM_CostFunction
+from .robust_cost_function import CostFunction as RobustCostFunction
+from .NLM_cost_function import CostFunction as NLM_CostFunction
 
 from .dimensionality_reduction import optimize_cost_function
 from .multiresolution_dimensionality_reduction import \
