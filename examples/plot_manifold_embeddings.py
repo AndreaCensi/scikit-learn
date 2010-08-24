@@ -96,4 +96,13 @@ X_r = embedding.fit(X).embedding_
 display_embedding(X_r,
     'Robust Multiresolution Embedding embedding of IRIS dataset')
 
+################################################################################
+# LLE
+print "LLE embedding embedding"
+from scikits.learn.manifold import LLE
+embedding = LLE(n_coords=3, n_neighbors=28)
+X_r = embedding.fit(X).embedding_
+
+display_embedding(X_r, 'LLE embedding of IRIS dataset')
+
 pl.show()
