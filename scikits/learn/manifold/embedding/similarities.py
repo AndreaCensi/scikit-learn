@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
 
 """
 Computes coordinates based on the similarities given as parameters
 """
 
 __all__ = ['LLE', 'laplacian_maps', 'hessianMap']
+
+from .embedding import Embedding
+from ..mapping import builder as mapping_builder
 
 from barycenters import barycenters
 
@@ -15,28 +19,104 @@ import scipy.sparse.linalg.dsolve
 import math
 from .tools import create_graph
 
-def LLE(samples, nb_coords, n_neighbors, neigh = None,
-    neigh_alternate_arguments = None):
+class LLE(Embedding):
     """
-    Computes the LLE reduction for a manifold
-    Parameters :
-      - samples are the samples that will be reduced
-      - nb_coords is the number of coordinates in the manifold
-      - neigh is the neighborer used (optional, default Kneighbor)
-      - n_neighbor is the number of neighbors (optional, default 9)
+    LLE embedding object
+
+    Parameters
+    ----------
+    n_coords : int
+      The dimension of the embedding space
+
+    n_neighbors : int
+      The number of K-neighboors to use (optional, default 9) if neigh is not
+      given.
+
+    neigh : Neighbors
+      A neighboorer (optional). By default, a K-Neighbor research is done.
+      If provided, neigh must be a functor class . `neigh_alternate_arguments`
+      will be passed to this class constructor.
+
+    neigh_alternate_arguments : dictionary
+      Dictionary of arguments that will be passed to the `neigh` constructor
+
+    mapping_kind : object
+      The type of mapper to use. Can be:
+          * None : no mapping built
+          * "Barycenter" (default) : Barycenter mapping
+          * a class object : a class that will be instantiated with the
+              arguments of this function
+          * an instance : an instance that will be fit() and then
+              transform()ed
+
+    Attributes
+    ----------
+    embedding_ : array_like
+        Embedding of the learning data
+
+    X_ : array_like
+        Original data that is embedded
+
+    See Also
+    --------
+
+
+    Notes
+    -----
+
+    .. [1] Sam T. Roweis  and Lawrence K. Saul,
+           "Nonlinear Dimensionality Reduction by Locally Linear Embedding",
+           Science, Vol. 290. no. 5500, pp. 2323 -- 2326, 22 December 2000
+
+    Examples
+    --------
+    >>> from scikits.learn.manifold import LLE
+    >>> import numpy
+    >>> samples = numpy.array((0., 0., 0., \
+      1., 0., 0., \
+      0., 1., 0., \
+      1., 1., 0., \
+      0., .5, 0., \
+      .5, 0., 0., \
+      1., 1., 0.5, \
+      )).reshape((-1,3))
+    >>> lle = LLE(n_coords = 2, mapping_kind = None, n_neighbors = 3)
+    >>> lle = lle.fit(samples)
     """
-    W = barycenters(samples, neigh = neigh, n_neighbors = n_neighbors,
-            neigh_alternate_arguments = neigh_alternate_arguments)
-    t = numpy.eye(len(samples), len(samples)) - W
-    M = numpy.asarray(numpy.dot(t.T, t))
+    def __init__(self, n_coords, n_neighbors = None, neigh = None,
+        neigh_alternate_arguments = None, mapping_kind = "Barycenter"):
+        Embedding.__init__(self, n_coords, n_neighbors,
+            neigh,neigh_alternate_arguments, mapping_kind)
 
-    w, vectors = numpy.linalg.eigh(M)
-    index = numpy.argsort(w)[1:1+nb_coords]
+    def fit(self, X):
+        """
+        Parameters
+        ----------
+        X : array_like
+        The learning dataset
 
-    t = scipy.sparse.eye(len(samples), len(samples)) - W
-    M = t.T * t
+        Returns
+        -------
+        Self
+        """
+        self.X_ = numpy.asanyarray(X)
+        W = barycenters(self.X_, neigh = self.neigh,
+            n_neighbors = self.n_neighbors,
+            neigh_alternate_arguments = self.neigh_alternate_arguments)
+        t = numpy.eye(len(self.X_), len(self.X_)) - W
+        M = numpy.asarray(numpy.dot(t.T, t))
 
-    return numpy.sqrt(len(samples)) * vectors[:,index]
+        w, vectors = numpy.linalg.eigh(M)
+        index = numpy.argsort(w)[1:1+self.n_coords]
+
+        t = scipy.sparse.eye(len(self.X_), len(self.X_)) - W
+        M = t.T * t
+
+        self.embedding_ = numpy.sqrt(len(self.X_)) * vectors[:,index]
+        self.mapping = mapping_builder(self, self.mapping_kind,
+            neigh = self.neigh, n_neighbors = self.n_neighbors - 1,
+            neigh_alternate_arguments = self.neigh_alternate_arguments)
+        return self
 
 def laplacian_maps(samples, nb_coords, method, **kwargs):
     """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 Dimensionality reduction with similarities
@@ -8,9 +9,7 @@ import numpy.random
 import numpy.linalg
 import math
 
-__all__ = ['LLE', 'laplacianEigenmap', 'diffusionMap', ]
-
-from similarities import LLE
+__all__ = ['laplacianEigenmap', 'diffusionMap', ]
 
 from .similarities import laplacian_maps, sparse_heat_kernel, \
     normalized_heat_kernel
