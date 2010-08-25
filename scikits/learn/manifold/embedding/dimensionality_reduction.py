@@ -24,7 +24,7 @@ class Modifier(object):
         return (points - means).ravel()
 
 def optimize_cost_function(distances, function, nb_coords = 2,
-    ftol = 0.00000001, gtol = 0.00000001, iterations_max = 10000, **kwargs):
+    ftol = 0.0001, gtol = 0.0001, iterations_max = 10000, **kwargs):
     """
     Computes a new coordinates system that respects the distances between each point
     Parameters :

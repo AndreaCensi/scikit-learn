@@ -378,7 +378,7 @@ class RobustEmbedding(Embedding):
     """
     def __init__(self, n_coords, n_neighbors = None, neigh = None,
         neigh_alternate_arguments = None, epsilon = 0.0000001, tau = 60,
-        sigma = 1, ftol = 0.00000001, gtol = 0.00000001, iterations_max = 10000,
+        sigma = 1, ftol = 0.0001, gtol = 0.0001, iterations_max = 10000,
         mapping_kind = "Barycenter", temp_file=None):
         Embedding.__init__(self, n_coords, n_neighbors,
            neigh,neigh_alternate_arguments, mapping_kind)

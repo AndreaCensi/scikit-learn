@@ -30,7 +30,7 @@ class AddNoise(object):
       if (cost * self.temp)**(1/8.) > 0:
           points += numpy.random.normal(loc = 0, scale = \
               (cost * self.temp)**(1/8.), size = points.shape)
-      self.temp /= 1.5
+      self.temp /= 2
 
       return points.ravel()
 

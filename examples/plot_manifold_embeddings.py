@@ -79,22 +79,22 @@ display_embedding(X_r, 'Geodesic NonLinear Mapping embedding of IRIS dataset')
 
 ################################################################################
 # Robust embedding
-print "Computing robust embedding embedding"
+print "Computing robust embedding"
 from scikits.learn.manifold import RobustEmbedding
 embedding = RobustEmbedding(n_coords=3, n_neighbors=28)
 X_r = embedding.fit(X).embedding_
 
-display_embedding(X_r, 'Robust Embedding embedding of IRIS dataset')
+display_embedding(X_r, 'Robust embedding of IRIS dataset')
 
 ################################################################################
 # Robust embedding
-print "Computing robust multiresolution embedding embedding"
-from scikits.learn.manifold import RobustMultiresolutionCompression
-embedding = RobustMultiresolutionCompression(n_coords=3, n_neighbors=28)
+print "Computing robust multiresolution embedding"
+from scikits.learn.manifold import RobustMultiresolutionEmbedding
+embedding = RobustMultiresolutionEmbedding(n_coords=3, n_neighbors=28)
 X_r = embedding.fit(X).embedding_
 
 display_embedding(X_r,
-    'Robust Multiresolution Embedding embedding of IRIS dataset')
+    'Robust Multiresolution embedding of IRIS dataset')
 
 ################################################################################
 # LLE
