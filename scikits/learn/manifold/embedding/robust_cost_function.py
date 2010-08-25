@@ -10,9 +10,8 @@ functions that lie in the compression module.
 import numpy
 
 from .tools import dist2hd
-from scikits.learn.externals.optimization.helpers import ForwardFiniteDifferences
 
-class CostFunction(ForwardFiniteDifferences):
+class CostFunction(object):
     """
     Wrapper with ctypes around the cost function
     """
@@ -21,7 +20,6 @@ class CostFunction(ForwardFiniteDifferences):
         """
         Creates the correct cost function with the good arguments
         """
-        ForwardFiniteDifferences.__init__(self)
         sortedDistances = distances.flatten()
         sortedDistances.sort()
         sortedDistances = sortedDistances[distances.shape[0]:]
@@ -62,21 +60,18 @@ class CostFunction(ForwardFiniteDifferences):
 
         square_diff = (estimated_distances - self.distances)**2
 
-        cost = 1 / (numpy.sqrt(self._epsilon + square_diff) * self.distances) * \
+        cost = 1. / (numpy.sqrt(self._epsilon + square_diff) * estimated_distances) * \
             numpy.sqrt(self._tau + square_diff)
 
         cost += numpy.sqrt(self._epsilon + square_diff) / \
-            (numpy.sqrt(self._tau + square_diff) * self.distances)
+            (numpy.sqrt(self._tau + square_diff) * estimated_distances)
 
         cost *= self.distances / (self._sigma + self.distances) * \
              (estimated_distances - self.distances)
 
         cost[numpy.where(self.distances == 0)] = 0
 
-        grad = numpy.sum(cost[:,:,None] * \
+        grad = 2 * numpy.sum(cost[:,:,None] * \
             (estimated_coordinates[None, :] - estimated_coordinates[:, None]),
             axis=0).flatten()
-        print grad
-        print ForwardFiniteDifferences.gradient(self, parameters)
-        print grad / ForwardFiniteDifferences.gradient(self, parameters)
         return grad
