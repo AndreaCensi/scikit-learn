@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Barycenter Mapping
 
@@ -6,7 +7,7 @@ Use the barycenter in an original space to create a projection inside an embedde
 
 import numpy as np
 
-from ...base_estimator import BaseEstimator
+from ...base import BaseEstimator
 
 from ..embedding.barycenters import barycenter
 from ..embedding.tools import create_neighborer
@@ -51,7 +52,7 @@ class Barycenter(BaseEstimator):
     def fit(self, embedding):
         """
         Train the mapping
-        
+
         Parameters
         ----------
         embedding : 
@@ -63,7 +64,7 @@ class Barycenter(BaseEstimator):
             self.neigh_alternate_arguments)
         self.neigh.fit(self.__X)
         return self
-      
+
     def transform(self, X):
         """
         Parameters

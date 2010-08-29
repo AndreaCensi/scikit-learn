@@ -1,15 +1,16 @@
+# -*- coding: utf-8 -*-
 
 import numpy
 import itertools
 
 from .tools import dist2hd
-from scikits.optimization.helpers import ForwardFiniteDifferences
+from scikits.learn.externals.optimization.helpers import ForwardFiniteDifferences
 
 class CostFunction(ForwardFiniteDifferences):
     """
     Cost function for the CCA algorithm (doi: 10.1109/72.554199)
     """
-    def __init__(self, distances, nb_coords, max_dist = 99, *args, **kwargs):
+    def __init__(self, distances, nb_coords, max_dist, *args, **kwargs):
         """
         Saves the distances to approximate
         Parameters:
@@ -20,16 +21,14 @@ class CostFunction(ForwardFiniteDifferences):
         self.distances = distances
         self.len = len(self.distances)
 
-        if max_dist < 100:
-            sortedDistances = distances.flatten()
-            sortedDistances.sort()
-            sortedDistances = sortedDistances[distances.shape[0]:]
+        max_dist = max_dist if max_dist < 99 else 99
+        max_dist = max_dist if max_dist > 0 else 0
 
-            self.max_dist = (
-                sortedDistances[max_dist * len(sortedDistances) // 100])
-        else:
-            self.max_dist = 10e20
-        print self.max_dist
+        sortedDistances = distances.flatten()
+        sortedDistances.sort()
+        sortedDistances = sortedDistances[distances.shape[0]:]
+
+        self.max_dist = (sortedDistances[max_dist * len(sortedDistances) // 100])
 
     def __call__(self, parameters):
         """
@@ -39,26 +38,8 @@ class CostFunction(ForwardFiniteDifferences):
         d = dist2hd(params, params)
         dist = self.distances < self.max_dist
         d = (d-self.distances)**2 * dist
+        d[numpy.where(numpy.isinf(d))] = 0
         return numpy.sum(d)
-
-    def gradient1(self, parameters):
-        """
-        Gradient of this cost function
-        """
-        params = parameters.reshape((self.len, -1))
-        d = dist2hd(params, params)
-        dist = d < self.max_dist
-        indice = numpy.random.randint(0, self.len)
-
-        x = params[indice]
-        d_a = d[indice]
-        d_r = self.distances[indice]
-        d_ok = dist[indice]
-
-        temp = (d_r-d_a)/d_a * (x - params).T * d_ok
-        temp[numpy.where(numpy.isnan(temp))] = 0
-
-        return temp.ravel()
 
     def gradient(self, parameters):
         """

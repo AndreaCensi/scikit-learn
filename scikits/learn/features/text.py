@@ -3,9 +3,11 @@
 # License: BSD Style.
 """Utilities to build feature vectors from text documents"""
 
+from collections import defaultdict
 import re
 import unicodedata
 import numpy as np
+import scipy.sparse as sp
 
 ENGLISH_STOP_WORDS = set([
     "a", "about", "above", "across", "after", "afterwards", "again", "against",
@@ -56,31 +58,90 @@ def strip_accents(s):
                     if unicodedata.category(c) != 'Mn'))
 
 
-class SimpleAnalyzer(object):
-    """Simple analyzer: transform a text document into a sequence of tokens
+class WordNGramAnalyzer(object):
+    """Simple analyzer: transform a text document into a sequence of word tokens
 
     This simple implementation does:
-        - lower case conversion
-        - unicode accents removal
-        - token extraction using unicode regexp word bounderies for token of
-          minimum size of 2 symbols
+      - lower case conversion
+      - unicode accents removal
+      - token extraction using unicode regexp word bounderies for token of
+        minimum size of 2 symbols
+      - output token n-grams (unigram only by default)
     """
 
     token_pattern = re.compile(r"\b\w\w+\b", re.U)
 
-    def __init__(self, default_charset='utf-8', stop_words=None):
+    def __init__(self, default_charset='utf-8', min_n=1, max_n=1,
+                 stop_words=None):
         self.charset = default_charset
         self.stop_words = stop_words
+        self.min_n = min_n
+        self.max_n = max_n
+
+    def analyze(self, text_document):
+        if isinstance(text_document, str):
+            text_document = text_document.decode(self.charset, 'ignore')
+
+        # lowercasing and accents removal
+        text_document = strip_accents(text_document.lower())
+
+        # word boundaries tokenizer
+        tokens = self.token_pattern.findall(text_document)
+
+        # handle token n-grams
+        if self.min_n != 1 or self.max_n != 1:
+            original_tokens = tokens
+            tokens = []
+            n_original_tokens = len(original_tokens)
+            for n in xrange(self.min_n, self.max_n + 1):
+                if n_original_tokens < n:
+                    continue
+                for i in xrange(n_original_tokens - n + 1):
+                    tokens.append(" ".join(original_tokens[i: i + n]))
+
+        # handle stop words
+        if self.stop_words is not None:
+            tokens = [w for w in tokens if w not in self.stop_words]
+
+        return tokens
+
+
+class CharNGramAnalyzer(object):
+    """Compute character n-grams features of a text document
+
+    This analyzer is interesting since it is language agnostic and will work
+    well even for language where word segmentation is not as trivial as English
+    such as Chinese and German for instance.
+
+    Because of this, it can be considered a basic morphological analyzer.
+    """
+
+    white_spaces = re.compile(r"\s\s+")
+
+    def __init__(self, default_charset='utf-8', min_n=3, max_n=6):
+        self.charset = default_charset
+        self.min_n = min_n
+        self.max_n = max_n
 
     def analyze(self, text_document):
         if isinstance(text_document, str):
             text_document = text_document.decode(self.charset, 'ignore')
         text_document = strip_accents(text_document.lower())
-        tokens = self.token_pattern.findall(text_document)
-        if self.stop_words is not None:
-            return [w for w in tokens if w not in self.stop_words]
-        else:
-            return tokens
+
+        # normalize white spaces
+        text_document = self.white_spaces.sub(" ", text_document)
+
+        text_len = len(text_document)
+        ngrams = []
+        for n in xrange(self.min_n, self.max_n + 1):
+            if text_len < n:
+                continue
+            for i in xrange(text_len - n):
+                ngrams.append(text_document[i: i + n])
+        return ngrams
+
+
+DEFAULT_ANALYZER = WordNGramAnalyzer(min_n=1, max_n=1)
 
 
 class HashingVectorizer(object):
@@ -105,12 +166,8 @@ class HashingVectorizer(object):
     # TODO: implement me using the murmurhash that might be faster: but profile
     # me first :)
 
-    # TODO: make it possible to select between the current dense representation
-    # and sparse alternatives from scipy.sparse once the liblinear and libsvm
-    # wrappers have been updated to be able to handle it efficiently
-
-    def __init__(self, dim=5000, probes=1, analyzer=SimpleAnalyzer(),
-                 use_idf=True):
+    def __init__(self, dim=5000, probes=1, use_idf=True,
+                 analyzer=DEFAULT_ANALYZER):
         self.dim = dim
         self.probes = probes
         self.analyzer = analyzer
@@ -120,23 +177,14 @@ class HashingVectorizer(object):
         # computing IDF
         self.df_counts = np.ones(dim, dtype=long)
         self.tf_vectors = None
-        self.sampled = 0
 
     def hash_sign(self, token, probe=0):
+        """Compute the hash of token with number proble and hashed sign"""
         h = hash(token + (probe * u"#"))
         return abs(h) % self.dim, 1.0 if h % 2 == 0 else -1.0
 
-    def sample_document(self, text, tf_vector=None, update_estimates=True):
+    def _sample_document(self, text, tf_vector, update_estimates=True):
         """Extract features from text and update running freq estimates"""
-        if tf_vector is None:
-            # allocate term frequency vector and stack to history
-            tf_vector = np.zeros(self.dim, np.float64)
-            if self.tf_vectors is None:
-                self.tf_vectors = tf_vector.reshape((1, self.dim))
-            else:
-                self.tf_vectors = np.vstack((self.tf_vectors, tf_vector))
-                tf_vector = self.tf_vectors[-1]
-
         tokens = self.analyzer.analyze(text)
         for token in tokens:
             # TODO add support for cooccurence tokens in a sentence
@@ -149,11 +197,11 @@ class HashingVectorizer(object):
         if update_estimates and self.use_idf:
             # update the running DF estimate
             self.df_counts += tf_vector != 0.0
-            self.sampled += 1
         return tf_vector
 
     def get_idf(self):
-        return np.log(float(self.sampled) / self.df_counts)
+        n_samples = float(len(self.tf_vectors))
+        return np.log(n_samples / self.df_counts)
 
     def get_tfidf(self):
         """Compute the TF-log(IDF) vectors of the sampled documents"""
@@ -161,16 +209,115 @@ class HashingVectorizer(object):
             return None
         return self.tf_vectors * self.get_idf()
 
-    def vectorize(self, document_filepaths):
-        """Vectorize a batch of documents"""
-        tf_vectors = np.zeros((len(document_filepaths), self.dim))
-        for i, filepath in enumerate(document_filepaths):
-            self.sample_document(file(filepath).read(), tf_vectors[i])
+    def vectorize(self, text_documents):
+        """Vectorize a batch of documents in python utf-8 strings or unicode"""
+        tf_vectors = np.zeros((len(text_documents), self.dim))
+        for i, text in enumerate(text_documents):
+            self._sample_document(text, tf_vectors[i])
 
         if self.tf_vectors is None:
             self.tf_vectors = tf_vectors
         else:
             self.tf_vectors = np.vstack((self.tf_vectors, tf_vectors))
+
+    def vectorize_files(self, document_filepaths):
+        """Vectorize a batch of documents stored in utf-8 text files"""
+        tf_vectors = np.zeros((len(document_filepaths), self.dim))
+        for i, filepath in enumerate(document_filepaths):
+            self._sample_document(file(filepath).read(), tf_vectors[i])
+
+        if self.tf_vectors is None:
+            self.tf_vectors = tf_vectors
+        else:
+            self.tf_vectors = np.vstack((self.tf_vectors, tf_vectors))
+
+    def get_vectors(self):
+        if self.use_idf:
+            return self.get_tfidf()
+        else:
+            return self.tf_vectors
+
+
+class SparseHashingVectorizer(object):
+    """Compute term freq vectors using hashed term space in a sparse matrix
+
+    The logic is the same as HashingVectorizer but it is possible to use much
+    larger dimension vectors without memory issues thanks to the usage of
+    scipy.sparse datastructure to store the tf vectors.
+    """
+
+    def __init__(self, dim=100000, probes=1, use_idf=True,
+                 analyzer=DEFAULT_ANALYZER):
+        self.dim = dim
+        self.probes = probes
+        self.analyzer = analyzer
+        self.use_idf = use_idf
+
+        # start counts at one to avoid zero division while
+        # computing IDF
+        self.df_counts = np.ones(dim, dtype=long)
+        self.tf_vectors = None
+
+    def hash_sign(self, token, probe=0):
+        h = hash(token + (probe * u"#"))
+        return abs(h) % self.dim, 1.0 if h % 2 == 0 else -1.0
+
+    def _sample_document(self, text, tf_vectors, idx=0, update_estimates=True):
+        """Extract features from text and update running freq estimates"""
+
+        tokens = self.analyzer.analyze(text)
+        counts = defaultdict(lambda: 0.0)
+        for token in tokens:
+            # TODO add support for cooccurence tokens in a sentence
+            # window
+            for probe in xrange(self.probes):
+                i, incr = self.hash_sign(token, probe)
+                counts[i] += incr
+        for k, v in counts.iteritems():
+            if v == 0.0:
+                # can happen if equally frequent conflicting features
+                continue
+            tf_vectors[idx, k] = v / (len(tokens) * self.probes)
+
+            if update_estimates and self.use_idf:
+                # update the running DF estimate
+                self.df_counts[k] += 1
+
+    def get_idf(self):
+        n_samples = float(self.tf_vectors.shape[0])
+        return np.log(n_samples / self.df_counts)
+
+    def get_tfidf(self):
+        """Compute the TF-log(IDF) vectors of the sampled documents"""
+        coo = self.tf_vectors.tocoo()
+        tf_idf = sp.lil_matrix(coo.shape)
+        idf = self.get_idf()
+        data, row, col = coo.data, coo.row, coo.col
+        for i in xrange(len(data)):
+            tf_idf[row[i], col[i]] = data[i] * idf[col[i]]
+        return tf_idf.tocsr()
+
+    def vectorize(self, text_documents):
+        """Vectorize a batch of documents in python utf-8 strings or unicode"""
+        tf_vectors = sp.dok_matrix((len(text_documents), self.dim))
+        for i, text in enumerate(text_documents):
+            self._sample_document(text, tf_vectors, i)
+
+        if self.tf_vectors is None:
+            self.tf_vectors = tf_vectors
+        else:
+            self.tf_vectors = sp.vstack((self.tf_vectors, tf_vectors))
+
+    def vectorize_files(self, document_filepaths):
+        """Vectorize a batch of utf-8 text files"""
+        tf_vectors = sp.dok_matrix((len(document_filepaths), self.dim))
+        for i, filepath in enumerate(document_filepaths):
+            self._sample_document(file(filepath).read(), tf_vectors, i)
+
+        if self.tf_vectors is None:
+            self.tf_vectors = tf_vectors
+        else:
+            self.tf_vectors = sp.vstack((self.tf_vectors, tf_vectors))
 
     def get_vectors(self):
         if self.use_idf:
