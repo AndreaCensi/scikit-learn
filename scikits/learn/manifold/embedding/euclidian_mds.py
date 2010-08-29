@@ -1,5 +1,6 @@
 
 import numpy
+from scipy import linalg
 import math
 
 from .tools import dist2hd
@@ -26,7 +27,7 @@ def mds(distances, function, n_coords):
     correlations = square_distances + numpy.mean(
         square_distances) - numpy.mean(square_distances, axis=0) - numpy.mean(
         square_distances, axis=1)[numpy.newaxis].T
-    (u, s, vh) = numpy.linalg.svd(correlations)
+    (u, s, vh) = linalg.svd(correlations)
     return u[:, :n_coords] * numpy.sqrt(s[:n_coords]), {
         'scaling' : u[:n_coords], 'eigen_vectors' : u[:, :n_coords]}
 
