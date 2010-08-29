@@ -9,6 +9,6 @@ from .embedding.geodesic_mds import Isomap, CCA, GeodesicNLM, RobustEmbedding, \
     RobustMultiresolutionEmbedding
 from .embedding.euclidian_mds import NLM
 from .embedding.similarities import LLE, HessianMap
-from .embedding.similarities_mds import LaplacianMap
+from .embedding.similarities_mds import LaplacianEigenmap, DiffusionMap
 
 from .mapping.barycenter import Barycenter

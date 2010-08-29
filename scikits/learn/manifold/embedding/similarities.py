@@ -187,7 +187,6 @@ def normalized_heat_kernel(samples, **kwargs):
     """
     similarities = heat_kernel(samples, **kwargs)
     p1 = 1./numpy.sqrt(numpy.sum(similarities, axis=0))
-
     return p1[:, numpy.newaxis] * similarities * p1
 
 def hessianMap(samples, n_coords, **kwargs):
