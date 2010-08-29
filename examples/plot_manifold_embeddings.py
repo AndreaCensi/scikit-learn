@@ -36,48 +36,48 @@ def display_embedding(embedding, title):
 
 ################################################################################
 # PCA
-#print "Computing PCA embedding"
-#from scikits.learn.manifold import PCA
-#pca = PCA(n_coords=3)
-#X_r = pca.fit(X).embedding_
+print "Computing PCA embedding"
+from scikits.learn.manifold import PCA
+pca = PCA(n_coords=3)
+X_r = pca.fit(X).embedding_
 
-#display_embedding(X_r, 'PCA embedding of IRIS dataset')
+display_embedding(X_r, 'PCA embedding of IRIS dataset')
 
-#################################################################################
-## Isomap
-#print "Computing Isomap embedding"
-#from scikits.learn.manifold import Isomap
-#isomap = Isomap(n_coords=3, n_neighbors=30)
-#X_r = isomap.fit(X).embedding_
+################################################################################
+# Isomap
+print "Computing Isomap embedding"
+from scikits.learn.manifold import Isomap
+isomap = Isomap(n_coords=3, n_neighbors=30)
+X_r = isomap.fit(X).embedding_
 
-#display_embedding(X_r, 'ISOMAP embedding of IRIS dataset')
+display_embedding(X_r, 'ISOMAP embedding of IRIS dataset')
 
-#################################################################################
-## CCA
-#print "Computing CCA embedding"
-#from scikits.learn.manifold import CCA
-#cca = CCA(n_coords=3, n_neighbors=30, max_dist=75)
-#X_r = cca.fit(X).embedding_
+################################################################################
+# CCA
+print "Computing CCA embedding"
+from scikits.learn.manifold import CCA
+cca = CCA(n_coords=3, n_neighbors=30, max_dist=75)
+X_r = cca.fit(X).embedding_
 
-#display_embedding(X_r, 'CCA embedding of IRIS dataset')
+display_embedding(X_r, 'CCA embedding of IRIS dataset')
 
-#################################################################################
-## NLM
-#print "Computing NLM embedding"
-#from scikits.learn.manifold import NLM
-#nlm = NLM(n_coords=3)
-#X_r = nlm.fit(X).embedding_
+################################################################################
+# NLM
+print "Computing NLM embedding"
+from scikits.learn.manifold import NLM
+nlm = NLM(n_coords=3)
+X_r = nlm.fit(X).embedding_
 
-#display_embedding(X_r, 'NonLinear Mapping embedding of IRIS dataset')
+display_embedding(X_r, 'NonLinear Mapping embedding of IRIS dataset')
 
-#################################################################################
-## geodesic NLM
-#print "Computing Geodesic NLM embedding"
-#from scikits.learn.manifold import GeodesicNLM
-#nlm = GeodesicNLM(n_coords=3, n_neighbors=28)
-#X_r = nlm.fit(X).embedding_
+################################################################################
+# geodesic NLM
+print "Computing Geodesic NLM embedding"
+from scikits.learn.manifold import GeodesicNLM
+nlm = GeodesicNLM(n_coords=3, n_neighbors=28)
+X_r = nlm.fit(X).embedding_
 
-#display_embedding(X_r, 'Geodesic NonLinear Mapping embedding of IRIS dataset')
+display_embedding(X_r, 'Geodesic NonLinear Mapping embedding of IRIS dataset')
 
 ################################################################################
 # Robust embedding
@@ -113,8 +113,7 @@ print "Computing Laplacian Eigenmap embedding"
 from scikits.learn.manifold import LaplacianEigenmap
 embedding = LaplacianEigenmap(n_coords=3, n_neighbors=30)
 X_r = embedding.fit(X).embedding_
-print X_r
-print y
+
 display_embedding(X_r, 'Laplacian Eigenmap embedding of IRIS dataset')
 
 ################################################################################
