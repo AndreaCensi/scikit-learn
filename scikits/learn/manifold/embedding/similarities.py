@@ -14,10 +14,9 @@ from barycenters import barycenters
 import numpy
 from numpy import linalg
 import scipy.sparse
-import scipy.linalg
-import scipy.sparse.linalg.dsolve
+from scipy.sparse.linalg.eigen.arpack import eigen_symmetric
 import math
-from .tools import create_graph
+from .tools import create_graph, create_sym_graph
 
 class LLE(Embedding):
     """
@@ -136,7 +135,7 @@ def laplacian_maps(samples, n_coords, method, **kwargs):
         dia = scipy.sparse.dia_matrix((Di, (0,)), shape=W.shape)
         L = dia * W * dia
 
-        w, vectors = scipy.sparse.linalg.eigen_symmetric(L, k=n_coords+1)
+        w, vectors = eigen_symmetric(L, k=n_coords+1)
         vectors = numpy.asarray(vectors)
         D = numpy.asarray(D)
         Di = numpy.asarray(Di).squeeze()
@@ -151,29 +150,10 @@ def laplacian_maps(samples, n_coords, method, **kwargs):
 
     return numpy.sqrt(len(samples)) * Di[:,numpy.newaxis] * vectors[:,index] * math.sqrt(numpy.sum(D))
 
-def laplacian_maps2(samples, n_coords, method, **kwargs):
-    """
-    Computes a Laplacian eigenmap for a manifold
-    Parameters:
-      - samples are the samples that will be reduced
-      - n_coords is the number of coordinates in the manifold
-      - method is the method to create the similarity matrix
-      - neigh is the neighborer used (optional, default Kneighbor)
-      - neighbor is the number of neighbors (optional, default 9)
-    """
-    W = method(samples, **kwargs)
-    D = numpy.sum(W, axis=0)
-    L = 1/D[:, numpy.newaxis] * (numpy.diag(D) - W)
-    w, vectors = scipy.linalg.eig(L)
-    index = numpy.argsort(w)[1:1+n_coords]
-    return numpy.sqrt(len(samples)) * vectors[:,index]
-
 def sparse_heat_kernel(samples, kernel_width = .5, **kwargs):
     """
     Uses a heat kernel for computing similarities in a neighborhood
     """
-    from tools import create_sym_graph
-
     graph = create_sym_graph(samples, **kwargs)
 
     W = []
@@ -182,7 +162,7 @@ def sparse_heat_kernel(samples, kernel_width = .5, **kwargs):
     for i in range(len(samples)):
         neighs = graph[i]
         z = samples[i] - samples[neighs]
-        wi = numpy.sum(z ** 2, axis = 1) / parameter
+        wi = numpy.sum(z ** 2, axis = 1) / kernel_width
         W.extend(numpy.exp(-wi))
         indices.extend(neighs)
         indptr.append(indptr[-1] + len(neighs))
@@ -199,7 +179,7 @@ def heat_kernel(samples, kernel_width = .5, **kwargs):
     from tools import dist2hd
     distances = dist2hd(samples, samples)**2
 
-    return numpy.exp(-distances/parameter)
+    return numpy.exp(-distances/kernel_width)
 
 def normalized_heat_kernel(samples, **kwargs):
     """

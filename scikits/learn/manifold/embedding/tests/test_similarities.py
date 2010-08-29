@@ -30,8 +30,8 @@ class TestLLE(TestCase):
         assert(lle.fit(samples) == lle)
         assert(hasattr(lle, 'embedding_'))
         assert(lle.embedding_.shape == (7, 2))
-        neighbors_orig = create_neighborer(samples, n_neighbors = 4).predict(samples)
-        neighbors_embedding = create_neighborer(lle.embedding_, n_neighbors = 4).predict(lle.embedding_)
+        neighbors_orig = create_neighborer(samples, n_neighbors = 4).predict(samples)[1]
+        neighbors_embedding = create_neighborer(lle.embedding_, n_neighbors = 4).predict(lle.embedding_)[1]
         assert((numpy.asarray(neighbors_orig) == numpy.asarray(neighbors_embedding)).all())
 
     @raises(RuntimeError)
@@ -55,8 +55,8 @@ class TestHessianMap(TestCase):
         assert(hessian.fit(samples) == hessian)
         assert(hasattr(hessian, 'embedding_'))
         assert(hessian.embedding_.shape == (7, 2))
-        neighbors_orig = create_neighborer(samples, n_neighbors = 4).predict(samples)
-        neighbors_embedding = create_neighborer(hessian.embedding_, n_neighbors = 4).predict(hessian.embedding_)
+        neighbors_orig = create_neighborer(samples, n_neighbors = 4).predict(samples)[1]
+        neighbors_embedding = create_neighborer(hessian.embedding_, n_neighbors = 4).predict(hessian.embedding_)[1]
         assert((numpy.asarray(neighbors_orig) == numpy.asarray(neighbors_embedding)).all())
 
     @raises(RuntimeError)
