@@ -1,4 +1,6 @@
 *.pyc
+*.pyd
+*.pxd
 *.so
 *~
 .#*
@@ -11,3 +13,5 @@ doc/_build/
 doc/auto_examples/
 pip-log.txt
 scikits.learn.egg-info/
+setup.cfg
+.coverage
